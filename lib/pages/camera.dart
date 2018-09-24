@@ -10,30 +10,6 @@ import '../utils/ui.dart';
 
 List<Choice> choices;
 
-/// Returns a suitable camera icon for [direction].
-IconData getCameraLensIcon(CameraLensDirection direction) {
-  switch (direction) {
-    case CameraLensDirection.back:
-      return Icons.camera_rear;
-    case CameraLensDirection.front:
-      return Icons.camera_front;
-    case CameraLensDirection.external:
-      return Icons.camera;
-  }
-  throw ArgumentError('Unknown lens direction');
-}
-
-String getCameraName(CameraLensDirection direction) {
-  switch (direction) {
-    case CameraLensDirection.back:
-      return "Rear";
-    case CameraLensDirection.front:
-      return "Front";
-    default:
-      return "External";
-  }
-}
-
 void logError(String code, String message) =>
     print('Error: $code\nError Message: $message');
 

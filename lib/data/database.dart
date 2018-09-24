@@ -34,6 +34,7 @@ class CategoryDatabase {
   Future _init() async {
     Directory documentsDirectory = await getApplicationDocumentsDirectory();
     String path = join(documentsDirectory.path, "cantonfair.db");
+    print('Init for database, Path $path');
     db = await openDatabase(path, version: 1,
         onCreate: (Database db, int version) async {
       // When creating the db, create the table
@@ -43,6 +44,38 @@ class CategoryDatabase {
           ")");
     });
     didInit = true;
+  }
+
+  Future<List<Category>> getCategories() async {
+    var db = await _getDb();
+    var result = await db.rawQuery('SELECT * FROM $tableName');
+    List<Category> books = [];
+    for (Map<String, dynamic> item in result) {
+      books.add(new Category.fromMap(item));
+    }
+    return books;
+  }
+
+  Future updateCategory(Category category) async {
+    var db = await _getDb();
+    await db.rawInsert(
+        'INSERT OR REPLACE INTO '
+        '$tableName(${Category.dbName}, ${Category.dbCreatedAt})'
+        ' VALUES(?, ?)',
+        [
+          category.name,
+          category.createdAt.toIso8601String(),
+        ]);
+  }
+
+  Future deleteCategory(Category category) async {
+    var db = await _getDb();
+    await db.rawInsert(
+        'DELETE FROM '
+        '$tableName WHERE ${Category.dbName} = ?',
+        [
+          category.name,
+        ]);
   }
 
   Future close() async {

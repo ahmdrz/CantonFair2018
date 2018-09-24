@@ -4,6 +4,30 @@ Color primaryColor = Colors.lightGreen;
 
 Color secondaryColor = Colors.lightGreenAccent;
 
+confirmDialog(BuildContext context, String title, Function onPress) async {
+  await showDialog<String>(
+      context: context,
+      builder: (BuildContext context) {
+        return new AlertDialog(
+          title: new Text(title),
+          contentPadding: const EdgeInsets.all(16.0),
+          actions: <Widget>[
+            new FlatButton(
+                child: const Text('No'),
+                onPressed: () {
+                  Navigator.pop(context);
+                }),
+            new FlatButton(
+                child: const Text('Yes'),
+                onPressed: () {
+                  onPress();
+                  Navigator.pop(context);
+                })
+          ],
+        );
+      });
+}
+
 Widget scaffoldWrapper({
   GlobalKey<ScaffoldState> key,
   Widget appBar,
@@ -80,8 +104,7 @@ Widget makeDrawer(BuildContext context) {
           leading: new Icon(Icons.settings),
           title: Text('Settings'),
           onTap: () {
-            // Update the state of the app
-            // ...
+            Navigator.pushNamed(context, '/settings');
           },
         ),
       ],

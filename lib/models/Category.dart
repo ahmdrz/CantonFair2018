@@ -6,15 +6,18 @@ class Category {
 
   String name;
   DateTime createdAt;
+  String _createdAt;
 
   Category({
     @required this.name,    
   }) {
     this.createdAt = new DateTime.now();
+    this._createdAt = this.createdAt.toIso8601String();
   }
 
   Category.fromMap(Map<String, dynamic> map) {
-    this.createdAt = map[dbCreatedAt];
+    this._createdAt = map[dbCreatedAt];
+    this.createdAt = DateTime.parse(this._createdAt);
     this.name = map[dbName];
   }
 
@@ -22,7 +25,7 @@ class Category {
   Map<String, dynamic> toMap() {
     return {
       dbName: name,
-      dbCreatedAt: createdAt,
+      dbCreatedAt: _createdAt,
     };
   }
 }
