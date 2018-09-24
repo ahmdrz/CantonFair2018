@@ -1,31 +1,70 @@
-import 'package:meta/meta.dart';
+import 'dart:async';
+import 'package:sqflite/sqflite.dart';
+import 'package:uuid/uuid.dart';
 
 class Category {
-  static final dbName = "name";
-  static final dbCreatedAt = "created_at";
+  static Database db;
 
+  static final String dbName = "name";
+  static final String dbCreatedAt = "created_at";
+  static final String dbUUID = "uuid";
+
+  static final String tableName = "categories";
+  static final String dbOnCreate = "CREATE TABLE IF NOT EXISTS $tableName ("
+      "${Category.dbUUID} STRING PRIMARY KEY,"
+      "${Category.dbName} STRING UNIQUE,"
+      "${Category.dbCreatedAt} TEXT"
+      ")";
+
+  String uuid;
   String name;
   DateTime createdAt;
-  String _createdAt;
+  int id;
 
-  Category({
-    @required this.name,    
-  }) {
+  Category({this.name}) {
     this.createdAt = new DateTime.now();
-    this._createdAt = this.createdAt.toIso8601String();
+    this.uuid = new Uuid().v4();    
   }
 
   Category.fromMap(Map<String, dynamic> map) {
-    this._createdAt = map[dbCreatedAt];
-    this.createdAt = DateTime.parse(this._createdAt);
+    this.createdAt = DateTime.parse(map[dbCreatedAt]);
     this.name = map[dbName];
+    this.uuid = map[dbUUID];
   }
 
-  // Currently not used
+  Future<List<Category>> getCategories() async {
+    var result = await db.rawQuery('SELECT * FROM $tableName');
+    List<Category> books = [];
+    for (Map<String, dynamic> item in result) {
+      books.add(new Category.fromMap(item));
+    }
+    return books;
+  }
+
+  Future<Category> getCategoryByName(String name) async {
+    var result =
+        await db.rawQuery('SELECT * FROM $tableName WHERE $dbName = ?', [name]);
+    if (result.length == 0) return null;
+    return Category.fromMap(result[0]);
+  }
+
+  Future updateCategory(Category category) async {
+    await db.rawInsert(
+        'INSERT OR REPLACE INTO '
+        '$tableName(${Category.dbUUID}, ${Category.dbName}, ${Category.dbCreatedAt})'
+        ' VALUES(?, ?, ?)',
+        [
+          category.uuid,
+          category.name,
+          category.createdAt.toIso8601String(),
+        ]);
+  }
+
   Map<String, dynamic> toMap() {
     return {
       dbName: name,
-      dbCreatedAt: _createdAt,
+      dbUUID: uuid,
+      dbCreatedAt: createdAt.toIso8601String(),
     };
   }
 }

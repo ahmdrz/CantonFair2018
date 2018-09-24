@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 
 import '../utils/rating.dart';
 import '../utils/ui.dart';
+import '../config/application.dart';
+import '../models/Category.dart';
 
 class HomeRoute extends StatefulWidget {
   @override
@@ -9,9 +11,11 @@ class HomeRoute extends StatefulWidget {
 }
 
 class _HomeRoute extends State<HomeRoute> {
+  List<Category> _categories = new List<Category>();
+  Category _category = new Category();
+
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   int phaseSelector = 1;
-  String categorySelector;
   String _title = '';
   String _description = '';
   TextEditingController _inputTitleController = new TextEditingController();
@@ -25,6 +29,12 @@ class _HomeRoute extends State<HomeRoute> {
   void initState() {
     super.initState();
     print("init state !");
+    setState(() {
+      _categories = Application.cache["categories"];
+      if (_categories.length > 0) {
+        _category = _categories[0];
+      }
+    });
   }
 
   _getDescriptionDialog() async {
@@ -112,6 +122,11 @@ class _HomeRoute extends State<HomeRoute> {
 
   @override
   Widget build(BuildContext context) {
+    if (_title != null && _description != null) {
+      setState(() {
+        _readyForCamera = _title.length * _description.length > 0;
+      });
+    }
     return scaffoldWrapper(
       context: context,
       key: _scaffoldKey,
@@ -141,21 +156,26 @@ class _HomeRoute extends State<HomeRoute> {
                 ListTile(
                   title: Text("Category"),
                   leading: Icon(Icons.list),
-                  trailing: DropdownButton<String>(
-                    value: categorySelector,
-                    onChanged: (String newValue) {
-                      setState(() {
-                        categorySelector = newValue;
-                      });
-                    },
-                    items: <String>['One', 'Two', 'Free', 'Four']
-                        .map((String value) {
-                      return DropdownMenuItem<String>(
-                        value: value,
-                        child: Text(value),
-                      );
-                    }).toList(),
-                  ),
+                  subtitle:
+                      _category.name != null ? Text(_category.name) : null,
+                  trailing: _category.name != null
+                      ? DropdownButton<Category>(
+                          onChanged: (Category newValue) {
+                            setState(() {
+                              _category = newValue;
+                            });
+                          },
+                          value: _category,
+                          items: _categories.map((Category item) {
+                            String title = item.name[0].toUpperCase() +
+                                item.name.substring(1);
+                            return DropdownMenuItem<Category>(
+                              value: item,
+                              child: Text("$title"),
+                            );
+                          }).toList(),
+                        )
+                      : null,
                 ),
                 ListTile(
                   leading: Icon(Icons.title),
@@ -203,7 +223,7 @@ class _HomeRoute extends State<HomeRoute> {
                       return;
                     }
 
-                    Navigator.pushNamed(context, '/camera');
+                    Application.router.navigateTo(context, '/camera');
                   },
                   // onTap: _showDialog,
                 ),

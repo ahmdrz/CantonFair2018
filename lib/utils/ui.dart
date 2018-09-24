@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../config/application.dart';
 
 Color primaryColor = Colors.lightGreen;
 
@@ -53,6 +54,13 @@ Widget scaffoldWrapper({
         icon: Icon(Icons.menu, color: Colors.black),
         onPressed: () => key.currentState.openDrawer(),
       ),
+      actions: <Widget>[
+        new FlatButton(
+            child: Text("Restart"),
+            onPressed: () {
+              Application.router.navigateTo(context, '/');
+            }),
+      ],
       title: const Text('Lemon App', style: TextStyle(color: Colors.black)),
       backgroundColor: primaryColor,
     );
@@ -89,7 +97,8 @@ Widget makeDrawer(BuildContext context) {
           leading: new Icon(Icons.list),
           title: Text('Categories'),
           onTap: () {
-            Navigator.pushNamed(context, '/categories');
+            Application.router.navigateTo(context, '/categories');
+            // Navigator.pushNamed(context, '/categories');
           },
         ),
         ListTile(
@@ -104,7 +113,8 @@ Widget makeDrawer(BuildContext context) {
           leading: new Icon(Icons.settings),
           title: Text('Settings'),
           onTap: () {
-            Navigator.pushNamed(context, '/settings');
+            // Navigator.pushNamed(context, '/settings');
+            Application.router.navigateTo(context, '/settings');
           },
         ),
       ],

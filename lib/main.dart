@@ -9,6 +9,7 @@ import './pages/home.dart';
 import './pages/camera.dart';
 import './pages/categories.dart';
 import './pages/settings.dart';
+import './pages/splash-screen.dart';
 
 /// Returns a suitable camera icon for [direction].
 IconData getCameraLensIcon(CameraLensDirection direction) {
@@ -61,6 +62,13 @@ class CantonFair extends StatelessWidget {
       '/',
       handler: Handler(handlerFunc:
           (BuildContext context, Map<String, List<String>> params) {
+        return new SplashScreenRoute();
+      }),
+    );
+    router.define(
+      '/home',
+      handler: Handler(handlerFunc:
+          (BuildContext context, Map<String, List<String>> params) {
         return new HomeRoute();
       }),
     );
@@ -88,7 +96,7 @@ class CantonFair extends StatelessWidget {
     Application.router = router;
   }
 
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context) {    
     return MaterialApp(
       title: 'CantonFair',
       initialRoute: '/',
