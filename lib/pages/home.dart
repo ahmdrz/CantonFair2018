@@ -3,7 +3,9 @@ import 'package:flutter/material.dart';
 import '../utils/rating.dart';
 import '../utils/ui.dart';
 import '../config/application.dart';
+
 import '../models/Category.dart';
+import '../models/Series.dart';
 
 class HomeRoute extends StatefulWidget {
   @override
@@ -13,9 +15,10 @@ class HomeRoute extends StatefulWidget {
 class _HomeRoute extends State<HomeRoute> {
   List<Category> _categories = new List<Category>();
   Category _category = new Category();
+  Series _seriesController = new Series();
 
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
-  int phaseSelector = 1;
+  int _phaseSelector = 1;
   String _title = '';
   String _description = '';
   TextEditingController _inputTitleController = new TextEditingController();
@@ -29,6 +32,9 @@ class _HomeRoute extends State<HomeRoute> {
   void initState() {
     super.initState();
     print("init state !");
+    _seriesController.getSeries().then((data) {
+      print("$data");
+    });
     setState(() {
       _categories = Application.cache["categories"];
       if (_categories.length > 0) {
@@ -139,10 +145,10 @@ class _HomeRoute extends State<HomeRoute> {
                   title: Text("Phase"),
                   leading: Icon(Icons.class_),
                   trailing: DropdownButton<int>(
-                    value: phaseSelector,
+                    value: _phaseSelector,
                     onChanged: (int newValue) {
                       setState(() {
-                        phaseSelector = newValue;
+                        _phaseSelector = newValue;
                       });
                     },
                     items: <int>[1, 2, 3].map((int number) {
@@ -223,7 +229,17 @@ class _HomeRoute extends State<HomeRoute> {
                       return;
                     }
 
-                    Application.router.navigateTo(context, '/camera');
+                    _seriesController
+                        .updateCategory(Series(
+                      description: _description,
+                      title: _title,
+                      phase: _phaseSelector,
+                      rating: _rating.toInt(),
+                      categoryUUID: _category.uuid,
+                    ))
+                        .then((result) {
+                      Application.router.navigateTo(context, '/camera');
+                    });
                   },
                   // onTap: _showDialog,
                 ),

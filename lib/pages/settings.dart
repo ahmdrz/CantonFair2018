@@ -32,10 +32,10 @@ class _SettingsRoute extends State<SettingsRoute> {
       ),
       appBar: new AppBar(
         leading: new IconButton(
-          icon: Icon(Icons.arrow_back, color: Colors.black),
+          icon: Icon(Icons.arrow_back, color: whiteColor),
           onPressed: () => Navigator.pop(context),
         ),
-        title: const Text('Settings', style: TextStyle(color: Colors.black)),
+        title: Text('Settings', style: TextStyle(color: whiteColor)),
         backgroundColor: primaryColor,
       ),
     );

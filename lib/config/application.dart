@@ -31,6 +31,9 @@ class Application {
         // print("Droping ${Category.tableName} ...");
         // await db.execute("DROP TABLE ${Category.tableName};");
 
+        // print("Droping ${Series.tableName} ...");
+        // await db.execute("DROP TABLE ${Series.tableName};");
+
         print("Creating ${Category.tableName} ...");
         await db.execute(Category.dbOnCreate);
         Category.db = db;
@@ -41,11 +44,11 @@ class Application {
       },
       onCreate: (Database db, int version) async {
         // only on production
-        // print("Creating ${Category.tableName} ...");
-        // await db.execute(Category.dbOnCreate);
+        print("Creating ${Category.tableName} ...");
+        await db.execute(Category.dbOnCreate);
 
-        // print("Creating ${Series.tableName} ...");
-        // await db.execute(Series.dbOnCreate);
+        print("Creating ${Series.tableName} ...");
+        await db.execute(Series.dbOnCreate);
       },
     );
   }

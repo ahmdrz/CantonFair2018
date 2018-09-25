@@ -34,11 +34,11 @@ class Category {
 
   Future<List<Category>> getCategories() async {
     var result = await db.rawQuery('SELECT * FROM $tableName');
-    List<Category> books = [];
+    List<Category> categories = [];
     for (Map<String, dynamic> item in result) {
-      books.add(new Category.fromMap(item));
+      categories.add(new Category.fromMap(item));
     }
-    return books;
+    return categories;
   }
 
   Future<Category> getCategoryByName(String name) async {

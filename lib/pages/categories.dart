@@ -106,10 +106,10 @@ class _CategoriesRoute extends State<CategoriesRoute> {
       ),
       appBar: new AppBar(
         leading: new IconButton(
-          icon: Icon(Icons.arrow_back, color: Colors.black),
+          icon: Icon(Icons.arrow_back, color: whiteColor),
           onPressed: () => Navigator.pop(context),
         ),
-        title: const Text('Categories', style: TextStyle(color: Colors.black)),
+        title: Text('Categories', style: TextStyle(color: whiteColor)),
         backgroundColor: primaryColor,
       ),
     );

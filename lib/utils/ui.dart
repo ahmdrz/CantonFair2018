@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import '../config/application.dart';
 
-Color primaryColor = Colors.lightGreen;
-
-Color secondaryColor = Colors.lightGreenAccent;
+final Color primaryColor = Colors.purple;
+final Color secondaryColor = Colors.purpleAccent;
+final Color whiteColor = Colors.white;
 
 confirmDialog(BuildContext context, String title, Function onPress) async {
   await showDialog<String>(
@@ -51,17 +51,17 @@ Widget scaffoldWrapper({
   if (appBar == null)
     appBar = AppBar(
       leading: new IconButton(
-        icon: Icon(Icons.menu, color: Colors.black),
+        icon: Icon(Icons.menu, color: whiteColor),
         onPressed: () => key.currentState.openDrawer(),
       ),
       actions: <Widget>[
         new FlatButton(
-            child: Text("Restart"),
+            child: Text("Restart", style: TextStyle(color: whiteColor)),
             onPressed: () {
               Application.router.navigateTo(context, '/');
             }),
       ],
-      title: const Text('Lemon App', style: TextStyle(color: Colors.black)),
+      title: Text('CantonFair 2018', style: TextStyle(color: whiteColor)),
       backgroundColor: primaryColor,
     );
   return Scaffold(
@@ -88,7 +88,11 @@ Widget makeDrawer(BuildContext context) {
       padding: EdgeInsets.zero,
       children: <Widget>[
         DrawerHeader(
-          child: Text('Drawer Header'),
+          child: Center(
+              child: Text(
+            'CantonFair 2018',
+            style: TextStyle(color: whiteColor),
+          )),
           decoration: BoxDecoration(
             color: primaryColor,
           ),

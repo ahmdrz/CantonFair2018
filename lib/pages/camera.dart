@@ -27,7 +27,7 @@ class Choice {
 }
 
 class _CameraRoute extends State<CameraRoute>
-    with SingleTickerProviderStateMixin {
+    with SingleTickerProviderStateMixin {    
   CameraController controller;
   String imagePath;
   String videoPath;
@@ -43,15 +43,14 @@ class _CameraRoute extends State<CameraRoute>
       context: context,
       pageName: "Camera",
       key: _scaffoldKey,
-      backgroundColor: Colors.black,
-      drawer: makeDrawer(context),
+      backgroundColor: Colors.black,      
       appBar: _makeAppBar(),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
       floatingActionButton: FloatingActionButton.extended(
         backgroundColor: secondaryColor,
         foregroundColor: controller != null && controller.value.isRecordingVideo
             ? Colors.red
-            : Colors.black,
+            : whiteColor,
         elevation: 4.0,
         icon: Icon(_isVideoSelected ? Icons.videocam : Icons.camera),
         label: Text(_isVideoSelected
@@ -81,8 +80,10 @@ class _CameraRoute extends State<CameraRoute>
                 icon: Icon(Icons.search),
                 onPressed: () {},
                 iconSize: 30.0,
+                color: whiteColor,
               ),
               IconButton(
+                color: whiteColor,
                 icon: Icon(!_isVideoSelected ? Icons.videocam : Icons.camera),
                 onPressed: controller != null &&
                         controller.value.isInitialized &&
@@ -155,96 +156,6 @@ class _CameraRoute extends State<CameraRoute>
       }
     });
   }
-
-  // /// Display the thumbnail of the captured image or video.
-  // Widget _thumbnailWidget() {
-  //   return Expanded(
-  //     child: Align(
-  //       alignment: Alignment.centerRight,
-  //       child: videoController == null && imagePath == null
-  //           ? null
-  //           : SizedBox(
-  //               child: (videoController == null)
-  //                   ? Image.file(File(imagePath))
-  //                   : Container(
-  //                       child: Center(
-  //                         child: AspectRatio(
-  //                             aspectRatio: videoController.value.size != null
-  //                                 ? videoController.value.aspectRatio
-  //                                 : 1.0,
-  //                             child: VideoPlayer(videoController)),
-  //                       ),
-  //                       decoration: BoxDecoration(
-  //                           border: Border.all(color: Colors.pink)),
-  //                     ),
-  //               width: 64.0,
-  //               height: 64.0,
-  //             ),
-  //     ),
-  //   );
-  // }
-
-  // /// Display the control bar with buttons to take pictures and record videos.
-  // Widget _captureControlRowWidget() {
-  //   return Row(
-  //     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-  //     mainAxisSize: MainAxisSize.max,
-  //     children: <Widget>[
-  //       IconButton(
-  //         icon: const Icon(Icons.camera_alt),
-  //         color: Colors.blue,
-  //         onPressed: controller != null &&
-  //                 controller.value.isInitialized &&
-  //                 !controller.value.isRecordingVideo
-  //             ? onTakePictureButtonPressed
-  //             : null,
-  //       ),
-  //       IconButton(
-  //         icon: const Icon(Icons.videocam),
-  //         color: Colors.blue,
-  //         onPressed: controller != null &&
-  //                 controller.value.isInitialized &&
-  //                 !controller.value.isRecordingVideo
-  //             ? onVideoRecordButtonPressed
-  //             : null,
-  //       ),
-  //       IconButton(
-  //         icon: const Icon(Icons.stop),
-  //         color: Colors.red,
-  //         onPressed: controller != null &&
-  //                 controller.value.isInitialized &&
-  //                 controller.value.isRecordingVideo
-  //             ? onStopButtonPressed
-  //             : null,
-  //   );
-  // }
-
-  // /// Display a row of toggle to select the camera (or a message if no camera is available).
-  // Widget _cameraTogglesRowWidget() {
-  //   final List<Widget> toggles = <Widget>[];
-
-  //   if (cameras.isEmpty) {
-  //     return const Text('No camera found');
-  //   } else {
-  //     for (CameraDescription cameraDescription in cameras) {
-  //       toggles.add(
-  //         SizedBox(
-  //           width: 90.0,
-  //           child: RadioListTile<CameraDescription>(
-  //             title: Icon(getCameraLensIcon(cameraDescription.lensDirection)),
-  //             groupValue: controller?.description,
-  //             value: cameraDescription,
-  //             onChanged: controller != null && controller.value.isRecordingVideo
-  //                 ? null
-  //                 : onNewCameraSelected,
-  //           ),
-  //         ),
-  //       );
-  //     }
-  //   }
-
-  //   return Row(children: toggles);
-  // }
 
   void onVideoRecordButtonPressed() {
     startVideoRecording().then((String filePath) {
@@ -347,15 +258,14 @@ class _CameraRoute extends State<CameraRoute>
   Widget _makeAppBar() {
     return AppBar(
       leading: new IconButton(
-        icon: Icon(Icons.menu, color: Colors.black),
-        onPressed: () => _scaffoldKey.currentState.openDrawer(),
+        icon: Icon(Icons.arrow_back, color: whiteColor),
+        onPressed: () => Navigator.pop(context),
       ),
-      title:
-          const Text('Camera handler', style: TextStyle(color: Colors.black)),
+      title: Text('Camera handler', style: TextStyle(color: whiteColor)),
       backgroundColor: primaryColor,
       actions: <Widget>[
-        PopupMenuButton<Choice>(
-          icon: new Icon(Icons.more_vert, color: Colors.black),
+        PopupMenuButton<Choice>(        
+          icon: new Icon(Icons.more_vert, color: whiteColor),
           padding: EdgeInsets.all(10.0),
           onSelected: _select,
           itemBuilder: (BuildContext context) {
