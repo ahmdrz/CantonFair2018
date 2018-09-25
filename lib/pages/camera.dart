@@ -4,9 +4,9 @@ import 'dart:io';
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:video_player/video_player.dart';
 
 import '../utils/ui.dart';
+import '../models/ImageModel.dart';
 
 List<Choice> choices;
 
@@ -14,8 +14,11 @@ void logError(String code, String message) =>
     print('Error: $code\nError Message: $message');
 
 class CameraRoute extends StatefulWidget {
+  final String uuid;
+  CameraRoute({this.uuid});
+
   @override
-  _CameraRoute createState() => new _CameraRoute();
+  _CameraRoute createState() => new _CameraRoute(uuid: uuid);
 }
 
 class Choice {
@@ -27,15 +30,17 @@ class Choice {
 }
 
 class _CameraRoute extends State<CameraRoute>
-    with SingleTickerProviderStateMixin {    
+    with SingleTickerProviderStateMixin {
   CameraController controller;
   String imagePath;
   String videoPath;
-  VideoPlayerController videoController;
-  VoidCallback videoPlayerListener;
   bool _isVideoSelected;
 
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+
+  final String uuid;
+
+  _CameraRoute({this.uuid});
 
   @override
   Widget build(BuildContext context) {
@@ -43,7 +48,7 @@ class _CameraRoute extends State<CameraRoute>
       context: context,
       pageName: "Camera",
       key: _scaffoldKey,
-      backgroundColor: Colors.black,      
+      backgroundColor: Colors.black,
       appBar: _makeAppBar(),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
       floatingActionButton: FloatingActionButton.extended(
@@ -149,10 +154,11 @@ class _CameraRoute extends State<CameraRoute>
       if (mounted) {
         setState(() {
           imagePath = filePath;
-          videoController?.dispose();
-          videoController = null;
         });
-        if (filePath != null) showInSnackBar('Picture saved to $filePath');
+        if (filePath != null) {          
+          ImageModel image = ImageModel(filePath: filePath, seriesUUID: uuid);
+          ImageModel.updateImage(image);          
+        }
       }
     });
   }
@@ -224,6 +230,8 @@ class _CameraRoute extends State<CameraRoute>
     await Directory(dirPath).create(recursive: true);
     final String filePath = '$dirPath/${timestamp()}.jpg';
 
+    print("$filePath");
+
     if (controller.value.isTakingPicture) {
       // A capture is already pending, do nothing.
       return null;
@@ -261,10 +269,10 @@ class _CameraRoute extends State<CameraRoute>
         icon: Icon(Icons.arrow_back, color: whiteColor),
         onPressed: () => Navigator.pop(context),
       ),
-      title: Text('Camera handler', style: TextStyle(color: whiteColor)),
+      title: Text('Camera handler $uuid', style: TextStyle(color: whiteColor)),
       backgroundColor: primaryColor,
       actions: <Widget>[
-        PopupMenuButton<Choice>(        
+        PopupMenuButton<Choice>(
           icon: new Icon(Icons.more_vert, color: whiteColor),
           padding: EdgeInsets.all(10.0),
           onSelected: _select,

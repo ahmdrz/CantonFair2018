@@ -7,6 +7,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:sqflite/sqflite.dart';
 
 import '../models/Category.dart';
+import '../models/ImageModel.dart';
 import '../models/Series.dart';
 
 class Application {
@@ -33,6 +34,13 @@ class Application {
 
         // print("Droping ${Series.tableName} ...");
         // await db.execute("DROP TABLE ${Series.tableName};");
+
+        // print("Droping ${Image.tableName} ...");
+        // await db.execute("DROP TABLE ${Image.tableName};");
+
+        print("Creating ${ImageModel.tableName} ...");
+        await db.execute(ImageModel.dbOnCreate);
+        ImageModel.db = db;
 
         print("Creating ${Category.tableName} ...");
         await db.execute(Category.dbOnCreate);

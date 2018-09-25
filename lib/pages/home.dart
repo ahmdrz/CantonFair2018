@@ -6,6 +6,7 @@ import '../config/application.dart';
 
 import '../models/Category.dart';
 import '../models/Series.dart';
+import '../models/ImageModel.dart';
 
 class HomeRoute extends StatefulWidget {
   @override
@@ -15,7 +16,7 @@ class HomeRoute extends StatefulWidget {
 class _HomeRoute extends State<HomeRoute> {
   List<Category> _categories = new List<Category>();
   Category _category = new Category();
-  Series _seriesController = new Series();
+  Series _seriesController = new Series();  
 
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   int _phaseSelector = 1;
@@ -33,6 +34,9 @@ class _HomeRoute extends State<HomeRoute> {
     super.initState();
     print("init state !");
     _seriesController.getSeries().then((data) {
+      print("$data");
+    });
+    ImageModel.getLatestImages(10).then((data) {
       print("$data");
     });
     setState(() {
@@ -140,6 +144,7 @@ class _HomeRoute extends State<HomeRoute> {
         child: Center(
           child: Container(
             child: ListView(
+              padding: EdgeInsets.only(top: 20.0, bottom: 20.0),
               children: <Widget>[
                 ListTile(
                   title: Text("Phase"),
@@ -229,24 +234,23 @@ class _HomeRoute extends State<HomeRoute> {
                       return;
                     }
 
-                    _seriesController
-                        .updateCategory(Series(
+                    Series currentSeries = Series(
                       description: _description,
                       title: _title,
                       phase: _phaseSelector,
                       rating: _rating.toInt(),
                       categoryUUID: _category.uuid,
-                    ))
-                        .then((result) {
-                      Application.router.navigateTo(context, '/camera');
+                    );
+                    _seriesController.updateCategory(currentSeries).then((_) {
+                      Application.router
+                          .navigateTo(context, '/camera/${currentSeries.uuid}');
                     });
                   },
                   // onTap: _showDialog,
                 ),
               ],
             ),
-            width: 400.0,
-            padding: EdgeInsets.all(20.0),
+            width: 400.0,            
           ),
         ),
       ),

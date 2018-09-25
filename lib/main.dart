@@ -32,10 +32,13 @@ class CantonFair extends StatelessWidget {
       }),
     );
     router.define(
-      '/camera',
+      '/camera/:series_uuid',
       handler: Handler(handlerFunc:
           (BuildContext context, Map<String, List<String>> params) {
-        return new CameraRoute();
+        print("${params['series_uuid'][0]}");
+        return new CameraRoute(
+          uuid: params['series_uuid'][0],
+        );
       }),
     );
     router.define(
