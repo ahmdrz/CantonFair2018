@@ -139,25 +139,10 @@ class _SeriesRoute extends State<SeriesRoute>
   }
 
   Widget _showResults() {
-    List<Widget> headerList = List<Widget>();
-    // headerList.add(
-    //   ListTile(
-    //     leading: Icon(Icons.search, color: primaryColor),
-    //     title: new TextField(
-    //       onChanged: (text) => _searchHandler(text),
-    //       decoration: new InputDecoration(hintText: 'Search...'),
-    //     ),
-    //   ),
-    // );
     return ListView.builder(
       padding: EdgeInsets.all(0.0),
-      itemCount: displayList.length + headerList.length,
+      itemCount: displayList.length,
       itemBuilder: (context, index) {
-        if (index < headerList.length) {
-          return headerList[index];
-        }
-
-        index -= headerList.length;
         Series item = displayList[index];
         var formatter = DateFormat('MM/dd HH:mm');
         return ListTile(
@@ -176,7 +161,7 @@ class _SeriesRoute extends State<SeriesRoute>
             "${item.rating}/5 (${item.count} images)",
             style: TextStyle(fontSize: 12.0),
           ),
-          onTap: () => _openSeries(item.uuid),
+          onTap: item.count > 0 ? () => _openSeries(item.uuid) : null,
         );
       },
     );
