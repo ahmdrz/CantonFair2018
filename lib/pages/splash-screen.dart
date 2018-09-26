@@ -61,8 +61,6 @@ class _SplashScreenRoute extends State<SplashScreenRoute> {
   @override
   void initState() {
     super.initState();
-
-    Category controller = Category();
     Application.cache = new Map<String, dynamic>();
 
     try {
@@ -80,7 +78,7 @@ class _SplashScreenRoute extends State<SplashScreenRoute> {
 
         Application.closeDatabase().then((result) {
           Application.initDatabase().then((data) {
-            controller.getCategories().then((categories) {
+            Category.getCategories().then((categories) {
               Application.cache["categories"] = categories;
               _startApp();
             });

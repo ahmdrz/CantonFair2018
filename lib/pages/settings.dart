@@ -18,26 +18,18 @@ class _SettingsRoute extends State<SettingsRoute> {
     return scaffoldWrapper(
       context: context,
       body: ListView(
-        children: <Widget>[          
+        children: <Widget>[
           ListTile(
             title: Text("Clear database"),
             leading: Icon(Icons.storage),
             onTap: () {
-              confirmDialog(context, "Are you sure ?", () {
-
-              });
+              confirmDialog(context, "Are you sure ?", () {});
             },
           ),
         ],
       ),
-      appBar: new AppBar(
-        leading: new IconButton(
-          icon: Icon(Icons.arrow_back, color: whiteColor),
-          onPressed: () => Navigator.pop(context),
-        ),
-        title: Text('Settings', style: TextStyle(color: whiteColor)),
-        backgroundColor: primaryColor,
-      ),
+      pageName: 'Settings',
+      childPage: true,
     );
   }
 }

@@ -25,18 +25,31 @@ class ImageModel {
 
   ImageModel({this.filePath, this.seriesUUID}) {
     this.createdAt = new DateTime.now();
-    this.uuid = new Uuid().v4();    
+    this.uuid = new Uuid().v4();
   }
 
   ImageModel.fromMap(Map<String, dynamic> map) {
+    print("images $map");
     this.createdAt = DateTime.parse(map[dbCreatedAt]);
     this.seriesUUID = map[dbSeriesUUID];
     this.filePath = map[dbFilePath];
     this.uuid = map[dbUUID];
   }
 
-  static Future<List<ImageModel>> getLatestImages(int limit) async {
-    var result = await db.rawQuery('SELECT * FROM $tableName ORDER BY ${ImageModel.dbCreatedAt} LIMIT $limit;');
+  static Future<List<ImageModel>> getImagesOfSeries(seriesUUID) async {
+    var result = await db.rawQuery(
+        'SELECT * FROM $tableName WHERE $dbSeriesUUID = "$seriesUUID" ORDER BY ${ImageModel.dbCreatedAt};');
+    List<ImageModel> images = [];
+    for (Map<String, dynamic> item in result) {
+      images.add(new ImageModel.fromMap(item));
+    }
+    return images;
+  }
+
+  static Future<List<ImageModel>> getLatestImages(int limit,
+      {int page = 0}) async {
+    var result = await db.rawQuery(
+        'SELECT * FROM $tableName ORDER BY ${ImageModel.dbCreatedAt} LIMIT $limit OFFSET ${page * limit};');
     List<ImageModel> images = [];
     for (Map<String, dynamic> item in result) {
       images.add(new ImageModel.fromMap(item));

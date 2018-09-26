@@ -35,8 +35,8 @@ class Application {
         // print("Droping ${Series.tableName} ...");
         // await db.execute("DROP TABLE ${Series.tableName};");
 
-        // print("Droping ${Image.tableName} ...");
-        // await db.execute("DROP TABLE ${Image.tableName};");
+        // print("Droping ${ImageModel.tableName} ...");
+        // await db.execute("DROP TABLE ${ImageModel.tableName};");
 
         print("Creating ${ImageModel.tableName} ...");
         await db.execute(ImageModel.dbOnCreate);

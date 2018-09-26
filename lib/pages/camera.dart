@@ -50,19 +50,14 @@ class _CameraRoute extends State<CameraRoute>
       key: _scaffoldKey,
       backgroundColor: Colors.black,
       appBar: _makeAppBar(),
-      floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
-      floatingActionButton: FloatingActionButton.extended(
+      floatingActionButtonLocation: FloatingActionButtonLocation.endDocked,
+      floatingActionButton: FloatingActionButton(
         backgroundColor: secondaryColor,
         foregroundColor: controller != null && controller.value.isRecordingVideo
             ? Colors.red
             : whiteColor,
         elevation: 4.0,
-        icon: Icon(_isVideoSelected ? Icons.videocam : Icons.camera),
-        label: Text(_isVideoSelected
-            ? (controller.value.isRecordingVideo
-                ? 'Stop recording'
-                : 'Start recording')
-            : 'Take picture'),
+        child: Icon(_isVideoSelected ? Icons.videocam : Icons.camera),
         onPressed: () {
           if (_isVideoSelected) {
             if (controller.value.isRecordingVideo)
@@ -74,19 +69,14 @@ class _CameraRoute extends State<CameraRoute>
         },
       ),
       bottomNavigationBar: BottomAppBar(
+        shape: CircularNotchedRectangle(),
         color: primaryColor,
         child: Padding(
           padding: const EdgeInsets.all(5.0),
           child: new Row(
             mainAxisSize: MainAxisSize.max,
-            mainAxisAlignment: MainAxisAlignment.end,
+            mainAxisAlignment: MainAxisAlignment.start,
             children: <Widget>[
-              IconButton(
-                icon: Icon(Icons.search),
-                onPressed: () {},
-                iconSize: 30.0,
-                color: whiteColor,
-              ),
               IconButton(
                 color: whiteColor,
                 icon: Icon(!_isVideoSelected ? Icons.videocam : Icons.camera),
@@ -155,9 +145,9 @@ class _CameraRoute extends State<CameraRoute>
         setState(() {
           imagePath = filePath;
         });
-        if (filePath != null) {          
+        if (filePath != null) {
           ImageModel image = ImageModel(filePath: filePath, seriesUUID: uuid);
-          ImageModel.updateImage(image);          
+          ImageModel.updateImage(image);
         }
       }
     });
@@ -269,7 +259,7 @@ class _CameraRoute extends State<CameraRoute>
         icon: Icon(Icons.arrow_back, color: whiteColor),
         onPressed: () => Navigator.pop(context),
       ),
-      title: Text('Camera handler $uuid', style: TextStyle(color: whiteColor)),
+      title: Text('Camera handler', style: TextStyle(color: whiteColor)),
       backgroundColor: primaryColor,
       actions: <Widget>[
         PopupMenuButton<Choice>(

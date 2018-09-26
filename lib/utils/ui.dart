@@ -44,26 +44,37 @@ Widget scaffoldWrapper({
   Color backgroundColor,
   bool resizeToAvoidBottomPadding = true,
   bool primary = true,
-  String pageName,
+  String pageName = '',
   @required BuildContext context,
+  bool childPage = false,
 }) {
   if (drawer == null) drawer = makeDrawer(context);
-  if (appBar == null)
-    appBar = AppBar(
-      leading: new IconButton(
-        icon: Icon(Icons.menu, color: whiteColor),
-        onPressed: () => key.currentState.openDrawer(),
-      ),
-      actions: <Widget>[
-        new FlatButton(
-            child: Text("Restart", style: TextStyle(color: whiteColor)),
-            onPressed: () {
-              Application.router.navigateTo(context, '/');
-            }),
-      ],
-      title: Text('CantonFair 2018', style: TextStyle(color: whiteColor)),
-      backgroundColor: primaryColor,
-    );
+  if (appBar == null) {
+    appBar = !childPage
+        ? AppBar(
+            leading: new IconButton(
+              icon: Icon(Icons.menu, color: whiteColor),
+              onPressed: () => key.currentState.openDrawer(),
+            ),
+            actions: <Widget>[
+              new FlatButton(
+                  child: Text("Restart", style: TextStyle(color: whiteColor)),
+                  onPressed: () {
+                    Application.router.navigateTo(context, '/');
+                  }),
+            ],
+            title: Text('CantonFair 2018', style: TextStyle(color: whiteColor)),
+            backgroundColor: primaryColor,
+          )
+        : AppBar(
+            leading: new IconButton(
+              icon: Icon(Icons.arrow_back, color: whiteColor),
+              onPressed: () => Navigator.pop(context),
+            ),
+            title: Text(pageName, style: TextStyle(color: whiteColor)),
+            backgroundColor: primaryColor,
+          );
+  }
   return Scaffold(
     key: key,
     appBar: appBar,
@@ -102,7 +113,13 @@ Widget makeDrawer(BuildContext context) {
           title: Text('Categories'),
           onTap: () {
             Application.router.navigateTo(context, '/categories');
-            // Navigator.pushNamed(context, '/categories');
+          },
+        ),
+        ListTile(
+          leading: new Icon(Icons.cake),
+          title: Text('Series'),
+          onTap: () {
+            Application.router.navigateTo(context, '/series');
           },
         ),
         ListTile(

@@ -6,7 +6,6 @@ import '../config/application.dart';
 
 import '../models/Category.dart';
 import '../models/Series.dart';
-import '../models/ImageModel.dart';
 
 class HomeRoute extends StatefulWidget {
   @override
@@ -14,31 +13,27 @@ class HomeRoute extends StatefulWidget {
 }
 
 class _HomeRoute extends State<HomeRoute> {
+  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+  
   List<Category> _categories = new List<Category>();
   Category _category = new Category();
-  Series _seriesController = new Series();  
 
-  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   int _phaseSelector = 1;
+
   String _title = '';
-  String _description = '';
   TextEditingController _inputTitleController = new TextEditingController();
+
+  String _description = '';
   TextEditingController _inputDescriptionController =
       new TextEditingController();
-  double _rating = 2.5;
+
+  double _rating = 4.0;
 
   bool _readyForCamera = false;
 
   @override
   void initState() {
     super.initState();
-    print("init state !");
-    _seriesController.getSeries().then((data) {
-      print("$data");
-    });
-    ImageModel.getLatestImages(10).then((data) {
-      print("$data");
-    });
     setState(() {
       _categories = Application.cache["categories"];
       if (_categories.length > 0) {
@@ -241,7 +236,7 @@ class _HomeRoute extends State<HomeRoute> {
                       rating: _rating.toInt(),
                       categoryUUID: _category.uuid,
                     );
-                    _seriesController.updateCategory(currentSeries).then((_) {
+                    Series.updateCategory(currentSeries).then((_) {
                       Application.router
                           .navigateTo(context, '/camera/${currentSeries.uuid}');
                     });
@@ -250,7 +245,7 @@ class _HomeRoute extends State<HomeRoute> {
                 ),
               ],
             ),
-            width: 400.0,            
+            width: 400.0,
           ),
         ),
       ),

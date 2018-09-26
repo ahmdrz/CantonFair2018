@@ -7,6 +7,8 @@ import './pages/categories.dart';
 import './pages/home.dart';
 import './pages/settings.dart';
 import './pages/splash-screen.dart';
+import './pages/series.dart';
+import './pages/selected-series.dart';
 import './utils/ui.dart';
 
 main() {
@@ -35,8 +37,23 @@ class CantonFair extends StatelessWidget {
       '/camera/:series_uuid',
       handler: Handler(handlerFunc:
           (BuildContext context, Map<String, List<String>> params) {
-        print("${params['series_uuid'][0]}");
         return new CameraRoute(
+          uuid: params['series_uuid'][0],
+        );
+      }),
+    );
+    router.define(
+      '/series',
+      handler: Handler(handlerFunc:
+          (BuildContext context, Map<String, List<String>> params) {
+        return new SeriesRoute();
+      }),
+    );
+    router.define(
+      '/series/:series_uuid',
+      handler: Handler(handlerFunc:
+          (BuildContext context, Map<String, List<String>> params) {
+        return new SelectedSeriesRoute(
           uuid: params['series_uuid'][0],
         );
       }),

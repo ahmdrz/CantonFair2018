@@ -52,10 +52,10 @@ class _CategoriesRoute extends State<CategoriesRoute> {
                   child: const Text('Submit'),
                   onPressed: () {
                     var text = _inputCategoryTitleController.text.toLowerCase();
-                    categoryController.getCategoryByName(text).then((result) {
+                    Category.getCategoryByName(text).then((result) {
                       if (result == null) {
                         var tmp = Category(name: text);
-                        categoryController.updateCategory(tmp);
+                        Category.updateCategory(tmp);
                         Application.cache["categories"].add(tmp);
                         setState(() {
                           _categories = Application.cache["categories"];
@@ -104,14 +104,8 @@ class _CategoriesRoute extends State<CategoriesRoute> {
           _getTitleDialog();
         },
       ),
-      appBar: new AppBar(
-        leading: new IconButton(
-          icon: Icon(Icons.arrow_back, color: whiteColor),
-          onPressed: () => Navigator.pop(context),
-        ),
-        title: Text('Categories', style: TextStyle(color: whiteColor)),
-        backgroundColor: primaryColor,
-      ),
+      pageName: 'Categories',
+      childPage: true,
     );
   }
 }

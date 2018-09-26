@@ -32,7 +32,15 @@ class Category {
     this.uuid = map[dbUUID];
   }
 
-  Future<List<Category>> getCategories() async {
+  Map<String, dynamic> toMap() {
+    return {
+      dbName: name,
+      dbUUID: uuid,
+      dbCreatedAt: createdAt.toIso8601String(),
+    };
+  }
+
+  static Future<List<Category>> getCategories() async {
     var result = await db.rawQuery('SELECT * FROM $tableName');
     List<Category> categories = [];
     for (Map<String, dynamic> item in result) {
@@ -41,14 +49,14 @@ class Category {
     return categories;
   }
 
-  Future<Category> getCategoryByName(String name) async {
+  static Future<Category> getCategoryByName(String name) async {
     var result =
         await db.rawQuery('SELECT * FROM $tableName WHERE $dbName = ?', [name]);
     if (result.length == 0) return null;
     return Category.fromMap(result[0]);
   }
 
-  Future updateCategory(Category category) async {
+  static Future updateCategory(Category category) async {
     await db.rawInsert(
         'INSERT OR REPLACE INTO '
         '$tableName(${Category.dbUUID}, ${Category.dbName}, ${Category.dbCreatedAt})'
@@ -58,13 +66,5 @@ class Category {
           category.name,
           category.createdAt.toIso8601String(),
         ]);
-  }
-
-  Map<String, dynamic> toMap() {
-    return {
-      dbName: name,
-      dbUUID: uuid,
-      dbCreatedAt: createdAt.toIso8601String(),
-    };
   }
 }
