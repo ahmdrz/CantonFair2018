@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'dart:async';
 import 'package:intl/intl.dart';
 
 import '../models/Series.dart';
@@ -45,6 +44,33 @@ class _SeriesRoute extends State<SeriesRoute> {
     });
   }
 
+  _getIconNumber(number) {
+    switch (number) {
+      case 0:
+        return Icons.filter_none;
+      case 1:
+        return Icons.filter_1;
+      case 2:
+        return Icons.filter_2;
+      case 3:
+        return Icons.filter_3;
+      case 4:
+        return Icons.filter_4;
+      case 5:
+        return Icons.filter_5;
+      case 6:
+        return Icons.filter_6;
+      case 7:
+        return Icons.filter_7;
+      case 8:
+        return Icons.filter_8;
+      case 9:
+        return Icons.filter_9;
+      default:
+        return Icons.filter_9_plus;
+    }
+  }
+
   Widget _showResults() {
     return ListView.builder(
       padding: EdgeInsets.only(top: 10.0, bottom: 10.0),
@@ -60,10 +86,10 @@ class _SeriesRoute extends State<SeriesRoute> {
           );
         }
 
-        Series item = displayList[index - 1];        
+        Series item = displayList[index - 1];
         var formatter = DateFormat('MM/dd HH:mm');
         return ListTile(
-          leading: Icon(Icons.description),
+          leading: Icon(_getIconNumber(item.count)),
           title: Text('${_makeTitle(item.title)}'),
           subtitle: Row(
             children: <Widget>[
@@ -74,7 +100,10 @@ class _SeriesRoute extends State<SeriesRoute> {
               ),
             ],
           ),
-          trailing: Text("${item.rating}/5 (${item.count} images)"),
+          trailing: Text(
+            "${item.rating}/5 (${item.count} images)",
+            style: TextStyle(fontSize: 12.0),
+          ),
           onTap: () => _openSeries(item.uuid),
         );
       },

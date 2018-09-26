@@ -57,7 +57,7 @@ class _CameraRoute extends State<CameraRoute>
             ? Colors.red
             : whiteColor,
         elevation: 4.0,
-        child: Icon(_isVideoSelected ? Icons.videocam : Icons.camera),
+        child: Icon(_isVideoSelected ? Icons.videocam : Icons.photo_camera),
         onPressed: () {
           if (_isVideoSelected) {
             if (controller.value.isRecordingVideo)
@@ -79,7 +79,7 @@ class _CameraRoute extends State<CameraRoute>
             children: <Widget>[
               IconButton(
                 color: whiteColor,
-                icon: Icon(!_isVideoSelected ? Icons.videocam : Icons.camera),
+                icon: Icon(!_isVideoSelected ? Icons.videocam : Icons.photo_camera),
                 onPressed: controller != null &&
                         controller.value.isInitialized &&
                         controller.value.isRecordingVideo

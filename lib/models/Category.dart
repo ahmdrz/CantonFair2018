@@ -23,7 +23,7 @@ class Category {
 
   Category({this.name}) {
     this.createdAt = new DateTime.now();
-    this.uuid = new Uuid().v4();    
+    this.uuid = new Uuid().v4();
   }
 
   Category.fromMap(Map<String, dynamic> map) {
@@ -47,6 +47,13 @@ class Category {
       categories.add(new Category.fromMap(item));
     }
     return categories;
+  }
+
+  static Future<Category> getCategoryByUUID(String uuid) async {
+    var result =
+        await db.rawQuery('SELECT * FROM $tableName WHERE $dbUUID = ?', [uuid]);
+    if (result.length == 0) return null;
+    return Category.fromMap(result[0]);
   }
 
   static Future<Category> getCategoryByName(String name) async {
