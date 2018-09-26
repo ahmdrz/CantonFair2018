@@ -42,9 +42,11 @@ Widget scaffoldWrapper({
   Widget bottomNavigationBar,
   Widget bottomSheet,
   Color backgroundColor,
+  List<Widget> appBarActions = const <Widget>[],
   bool resizeToAvoidBottomPadding = true,
   bool primary = true,
   String pageName = '',
+  bool appBarShadow = true,
   @required BuildContext context,
   bool childPage = false,
 }) {
@@ -65,8 +67,11 @@ Widget scaffoldWrapper({
             ],
             title: Text('CantonFair 2018', style: TextStyle(color: whiteColor)),
             backgroundColor: primaryColor,
+            elevation: appBarShadow ? 4.0 : 0.0,
           )
         : AppBar(
+            actions: appBarActions,
+            elevation: appBarShadow ? 4.0 : 0.0,
             leading: new IconButton(
               icon: Icon(Icons.arrow_back, color: whiteColor),
               onPressed: () => Navigator.pop(context),

@@ -88,7 +88,7 @@ class Series {
 
   static Future<List<Series>> getSeries(
       {bool pagination = false, int limit = 10, int page = 0}) async {
-    var result = await db.rawQuery('SELECT * FROM $tableName' +
+    var result = await db.rawQuery('SELECT * FROM $tableName ORDER BY $dbCreatedAt DESC ' +
         (pagination ? 'LIMIT $limit OFFSET ${page * limit};' : ';'));
     List<Series> series = [];
     for (Map<String, dynamic> item in result) {
