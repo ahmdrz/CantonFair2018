@@ -105,21 +105,19 @@ Widget makeDrawer(BuildContext context) {
       children: <Widget>[
         DrawerHeader(
           child: Center(
-              child: Text(
-            'CantonFair 2018',
-            style: TextStyle(color: whiteColor),
-          )),
+            child: Text(
+              "CantonFair2018",
+              style: TextStyle(color: whiteColor),
+            ),
+          ),
           decoration: BoxDecoration(
+            image: DecorationImage(
+                image: AssetImage(
+                  'assets/purple-materials.jpg',
+                ),
+                fit: BoxFit.cover),
             color: primaryColor,
           ),
-        ),
-        ListTile(
-          leading: new Icon(Icons.list),
-          title: Text('Categories'),
-          onTap: () {
-            Navigator.pop(context);
-            Application.router.navigateTo(context, '/categories');
-          },
         ),
         ListTile(
           leading: new Icon(Icons.cake),
@@ -127,6 +125,14 @@ Widget makeDrawer(BuildContext context) {
           onTap: () {
             Navigator.pop(context);
             Application.router.navigateTo(context, '/series');
+          },
+        ),
+        ListTile(
+          leading: new Icon(Icons.list),
+          title: Text('Categories'),
+          onTap: () {
+            Navigator.pop(context);
+            Application.router.navigateTo(context, '/categories');
           },
         ),
         ListTile(
