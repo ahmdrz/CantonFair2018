@@ -117,6 +117,7 @@ Widget makeDrawer(BuildContext context) {
           leading: new Icon(Icons.list),
           title: Text('Categories'),
           onTap: () {
+            Navigator.pop(context);
             Application.router.navigateTo(context, '/categories');
           },
         ),
@@ -124,6 +125,7 @@ Widget makeDrawer(BuildContext context) {
           leading: new Icon(Icons.cake),
           title: Text('Series'),
           onTap: () {
+            Navigator.pop(context);
             Application.router.navigateTo(context, '/series');
           },
         ),
@@ -131,15 +133,14 @@ Widget makeDrawer(BuildContext context) {
           leading: new Icon(Icons.cloud),
           title: Text('Server'),
           onTap: () {
-            // Update the state of the app
-            // ...
+            Navigator.pop(context);
           },
         ),
         ListTile(
           leading: new Icon(Icons.settings),
           title: Text('Settings'),
           onTap: () {
-            // Navigator.pushNamed(context, '/settings');
+            Navigator.pop(context);
             Application.router.navigateTo(context, '/settings');
           },
         ),
