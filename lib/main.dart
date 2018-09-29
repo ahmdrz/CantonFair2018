@@ -9,7 +9,6 @@ import './pages/settings.dart';
 import './pages/splash-screen.dart';
 import './pages/series.dart';
 import './pages/selected-series.dart';
-import './pages/selected-phase.dart';
 import './utils/ui.dart';
 
 main() {
@@ -63,7 +62,7 @@ class CantonFair extends StatelessWidget {
       '/phases/:phase',
       handler: Handler(handlerFunc:
           (BuildContext context, Map<String, List<String>> params) {
-        return new SelectedPhaseRoute(
+        return new SeriesRoute.byPhase(
           phase: params['phase'][0],
         );
       }),

@@ -21,6 +21,7 @@ class SelectedSeriesRoute extends StatefulWidget {
 class _SelectedSeriesRoute extends State<SelectedSeriesRoute>
     with SingleTickerProviderStateMixin {
   final String uuid;
+
   bool _loading = true;
   Series _selectedSeries = Series();
   Category _selectedCategory = Category(name: "unknown");
@@ -108,12 +109,14 @@ class _SelectedSeriesRoute extends State<SelectedSeriesRoute>
                 ),
                 ListTile(
                   title: Text("Phase:"),
-                  subtitle: Text("Phase ${_selectedSeries.phase} (tap for more info)"),
+                  subtitle: Text(
+                      "Phase ${_selectedSeries.phase} (tap for more info)"),
                   leading: Icon(Icons.class_),
                 ),
                 ListTile(
                   title: Text("Category:"),
-                  subtitle: Text("${_selectedCategory.name} (tap for more info)"),
+                  subtitle:
+                      Text("${_selectedCategory.name} (tap for more info)"),
                   leading: Icon(Icons.list),
                 ),
               ],

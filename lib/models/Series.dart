@@ -86,6 +86,18 @@ class Series {
     return null;
   }
 
+  static Future<List<Series>> getSeriesByPhase(phase) async {
+    var result =
+        await db.rawQuery('SELECT * FROM $tableName WHERE $dbPhase = "$phase";');
+    List<Series> series = [];
+    for (Map<String, dynamic> item in result) {
+      Series s = new Series.fromMap(item);
+      await s.fetchCount();
+      series.add(s);
+    }    
+    return series;
+  }
+
   static Future<List<Series>> getSeries(
       {bool pagination = false, int limit = 10, int page = 0}) async {
     var result = await db.rawQuery('SELECT * FROM $tableName ORDER BY $dbCreatedAt DESC ' +

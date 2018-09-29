@@ -6,23 +6,32 @@ import '../models/Series.dart';
 import '../utils/ui.dart';
 
 class SeriesRoute extends StatefulWidget {
+  final String phase;
+
+  SeriesRoute({this.phase});
+
+  SeriesRoute.byPhase({this.phase});
+
   @override
-  _SeriesRoute createState() => new _SeriesRoute();
+  _SeriesRoute createState() => new _SeriesRoute(phase: phase);
 }
 
 class _SeriesRoute extends State<SeriesRoute>
     with SingleTickerProviderStateMixin {
-  ScrollController _scrollViewController;
+  final String phase;
 
   List<Series> list = new List<Series>();
   List<Series> displayList = new List<Series>();
   bool _ready = false;
 
+  _SeriesRoute({this.phase}) {
+    print("$phase");
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: new NestedScrollView(
-        controller: _scrollViewController,
         headerSliverBuilder: (BuildContext context, bool innerBoxIsScrolled) {
           return <Widget>[
             new SliverAppBar(
@@ -66,22 +75,29 @@ class _SeriesRoute extends State<SeriesRoute>
 
   @override
   void dispose() {
-    _scrollViewController.dispose();
     super.dispose();
   }
 
   @override
   void initState() {
     super.initState();
-    _scrollViewController = new ScrollController();
-
-    Series.getSeries().then((result) {
-      setState(() {
-        list = result;
-        displayList = list;
-        _ready = true;
+    if (phase == null) {
+      Series.getSeries().then((result) {
+        setState(() {
+          list = result;
+          displayList = list;
+          _ready = true;
+        });
       });
-    });
+    } else {
+      Series.getSeriesByPhase(phase).then((result) {
+        setState(() {
+          list = result;
+          displayList = list;
+          _ready = true;
+        });
+      });
+    }
   }
 
   _getIconNumber(number) {
