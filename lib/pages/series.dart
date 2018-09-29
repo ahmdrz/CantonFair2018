@@ -24,9 +24,7 @@ class _SeriesRoute extends State<SeriesRoute>
   List<Series> displayList = new List<Series>();
   bool _ready = false;
 
-  _SeriesRoute({this.phase}) {
-    print("$phase");
-  }
+  _SeriesRoute({this.phase});
 
   @override
   Widget build(BuildContext context) {

@@ -24,6 +24,7 @@ dependencies:
   uuid: any  
   intl: any 
   flutter_staggered_grid_view: any 
+  simple_permissions: "^0.1.2"
 
 dev_dependencies:
   flutter_test:

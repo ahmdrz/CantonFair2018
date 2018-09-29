@@ -61,7 +61,7 @@ class _SplashScreenRoute extends State<SplashScreenRoute> {
   @override
   void initState() {
     super.initState();
-    Application.cache = new Map<String, dynamic>();
+    Application.cache = new Map<String, dynamic>();    
 
     try {
       availableCameras().then((cameras) {

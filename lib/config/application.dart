@@ -16,11 +16,21 @@ class Application {
   static bool _dbIsOpened = false;
   static String _databaseName = 'cantonfair.db';
   static Map<String, dynamic> cache;
+  static String databasePath = "";  
 
-  static Future initDatabase() async {
-    print("init database !");
-    Directory documentsDirectory = await getApplicationDocumentsDirectory();
-    String path = join(documentsDirectory.path, _databaseName);
+  static String timestamp() => DateTime.now().millisecondsSinceEpoch.toString();
+
+  static Future backupDatabase() async {
+    File f = new File(join(databasePath, _databaseName));
+    String newPath = join(databasePath, '${timestamp()}.db');
+    print("coping to $newPath");
+    await f.copy(newPath);
+  }
+
+  static Future initDatabase() async {    
+    databasePath = await getDatabasesPath();
+    String path = join(databasePath, _databaseName);    
+    print("db path is $path");
     db = await openDatabase(
       path,
       version: 1,
