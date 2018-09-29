@@ -25,7 +25,7 @@ class Application {
     await closeDatabase();    
     File f = new File(join(databasePath, _databaseName));
     String newPath = join(databasePath, '${timestamp()}.db');
-    print("coping to $newPath");
+    print("Coping to $newPath");
     await f.copy(newPath);
     await openDB();
   }

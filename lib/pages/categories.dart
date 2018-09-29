@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'dart:io';
 
 import '../utils/ui.dart';
 import '../models/Category.dart';
@@ -57,8 +58,12 @@ class _CategoriesRoute extends State<CategoriesRoute> {
                         var tmp = Category(name: text);
                         Category.updateCategory(tmp);
                         Application.cache["categories"].add(tmp);
-                        setState(() {
-                          _categories = Application.cache["categories"];
+                        Directory("${Application.appDir}/Categories/$text")
+                            .create(recursive: true)
+                            .then((_) {
+                          setState(() {
+                            _categories = Application.cache["categories"];
+                          });
                         });
                       }
                     });
