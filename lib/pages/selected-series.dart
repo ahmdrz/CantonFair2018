@@ -2,10 +2,13 @@ import 'package:flutter/material.dart';
 
 import 'package:intl/intl.dart';
 
+import 'dart:math';
+
 import '../utils/ui.dart';
 import '../models/Series.dart';
 import '../models/Category.dart';
 import '../models/ImageModel.dart';
+import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 
 class SelectedSeriesRoute extends StatefulWidget {
   final String uuid;
@@ -15,22 +18,32 @@ class SelectedSeriesRoute extends StatefulWidget {
   _SelectedSeriesRoute createState() => new _SelectedSeriesRoute(uuid: uuid);
 }
 
-class _SelectedSeriesRoute extends State<SelectedSeriesRoute> {
+class _SelectedSeriesRoute extends State<SelectedSeriesRoute>
+    with SingleTickerProviderStateMixin {
   final String uuid;
   bool _loading = true;
   Series _selectedSeries = Series();
   Category _selectedCategory = Category(name: "unknown");
   List<ImageModel> _images = List<ImageModel>();
 
+  TabController _tabController;
+
+  @override
+  void dispose() {
+    _tabController.dispose();
+    super.dispose();
+  }
+
   _SelectedSeriesRoute({this.uuid}) {
     Series.getSelectedSeriesByUUID(uuid).then((series) {
       ImageModel.getImagesOfSeries(uuid).then((images) {
         Category.getCategoryByUUID(series.categoryUUID).then((category) {
           setState(() {
+            _images = images;
             _selectedCategory = category;
             _selectedSeries = series;
-            _images = images;
             _loading = false;
+            _tabController = new TabController(vsync: this, length: 2);
           });
         });
       });
@@ -47,71 +60,102 @@ class _SelectedSeriesRoute extends State<SelectedSeriesRoute> {
     super.initState();
   }
 
-  _showImage(image) {
+  _showImage(image) {}
 
+  heading(text) {
+    return Text(text, style: TextStyle(fontSize: 18.0));
   }
 
   _scaffold() {
     var formatter = DateFormat("yyyy/MM/dd 'at' HH:mm:ss");
 
-    return Container(
-      child: Center(
-        child: Container(
-          width: 400.0,
-          child: ListView.builder(
-            itemCount: _images.length + 4,
-            itemBuilder: (BuildContext context, int index) {
-              if (index == 0) {
-                return ListTile(
-                  leading: Icon(Icons.description),
-                  title: Text(_makeTitle(_selectedSeries.description)),
-                );
-              }
-              if (index == 1) {
-                return ListTile(
-                  leading: Icon(Icons.calendar_today),
-                  title: Text(formatter.format(_selectedSeries.createdAt)),
-                );
-              }
-              if (index == 2) {
-                return ListTile(
-                  leading: Icon(Icons.category),
-                  title: Text(_makeTitle(_selectedCategory.name)),
-                );
-              }
-              if (index == 3) {
-                return Divider();
-              }
-              index -= 4;
-
-              return GestureDetector(
-                onTap: () => _showImage(_images[index]),
-                child: Card(
-                  margin: EdgeInsets.only(top: 10.0, bottom: 10.0),
-                  child: Container(
-                    height: 300.0,
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.all(Radius.circular(4.0)),
-                      image: DecorationImage(
-                        image: AssetImage(_images[index].filePath),
-                        fit: BoxFit.cover,
-                      ),
-                    ),
-                  ),
-                ),
-              );
-            },
-          ),
+    return Scaffold(
+      appBar: AppBar(
+        leading: new IconButton(
+          icon: Icon(Icons.arrow_back, color: whiteColor),
+          onPressed: () => Navigator.pop(context),
         ),
+        title: Text(_makeTitle(_selectedSeries.title),
+            style: TextStyle(color: whiteColor)),
+        backgroundColor: primaryColor,
+      ),
+      body: TabBarView(
+        controller: _tabController,
+        children: <Widget>[
+          Container(
+            padding: EdgeInsets.all(10.0),
+            child: ListView(
+              children: <Widget>[
+                ListTile(
+                  title: Text("Title:"),
+                  subtitle: Text(_makeTitle(_selectedSeries.title)),
+                  leading: Icon(Icons.title),
+                ),
+                ListTile(
+                  title: Text("Description:"),
+                  subtitle: Text(_makeTitle(_selectedSeries.description)),
+                  leading: Icon(Icons.description),
+                ),
+                ListTile(
+                  title: Text("Created at:"),
+                  subtitle: Text(formatter.format(_selectedSeries.createdAt)),
+                  leading: Icon(Icons.calendar_today),
+                ),
+                ListTile(
+                  title: Text("Rating:"),
+                  subtitle: Text("Score was ${_selectedSeries.rating}/5"),
+                  leading: Icon(Icons.stars),
+                ),
+                ListTile(
+                  title: Text("Phase:"),
+                  subtitle: Text("Phase ${_selectedSeries.phase} (tap for more info)"),
+                  leading: Icon(Icons.class_),
+                ),
+                ListTile(
+                  title: Text("Category:"),
+                  subtitle: Text("${_selectedCategory.name} (tap for more info)"),
+                  leading: Icon(Icons.list),
+                ),
+              ],
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.all(10.0),
+            child: StaggeredGridView.countBuilder(
+              crossAxisCount: 4,
+              itemCount: _images.length,
+              itemBuilder: (BuildContext context, int index) =>
+                  _CardTile(_images[index].filePath),
+              staggeredTileBuilder: (int index) =>
+                  new StaggeredTile.count(2, index.isEven ? 2 : 1),
+              mainAxisSpacing: 4.0,
+              crossAxisSpacing: 4.0,
+            ),
+          ),
+        ],
+      ),
+      bottomNavigationBar: new TabBar(
+        controller: _tabController,
+        tabs: [
+          Tab(
+            text: "Detials",
+          ),
+          Tab(
+            text: "Gallery",
+          ),
+        ],
+        labelColor: secondaryColor,
+        unselectedLabelColor: Colors.black,
       ),
     );
   }
 
   _loadingContainer() {
     return Container(
+      color: primaryColor,
       child: Center(
         child: CircularProgressIndicator(
-          valueColor: new AlwaysStoppedAnimation<Color>(primaryColor),
+          valueColor: new AlwaysStoppedAnimation<Color>(whiteColor),
         ),
       ),
     );
@@ -119,11 +163,31 @@ class _SelectedSeriesRoute extends State<SelectedSeriesRoute> {
 
   @override
   Widget build(BuildContext context) {
-    return scaffoldWrapper(
-      context: context,
-      childPage: true,
-      pageName: _loading ? "Loading ..." : "${_makeTitle(_selectedSeries.title)}",
-      body: _loading ? _loadingContainer() : _scaffold(),
+    return _loading ? _loadingContainer() : _scaffold();
+  }
+}
+
+class _CardTile extends StatelessWidget {
+  const _CardTile(this.gridImage);
+  final gridImage;
+  @override
+  Widget build(BuildContext context) {
+    return new Card(
+      color: const Color(0x00000000),
+      elevation: 7.0,
+      child: new GestureDetector(
+        onTap: () {
+          print("$gridImage");
+        },
+        child: new Container(
+            decoration: new BoxDecoration(
+          image: new DecorationImage(
+            image: new AssetImage(gridImage),
+            fit: BoxFit.cover,
+          ),
+          borderRadius: new BorderRadius.all(const Radius.circular(10.0)),
+        )),
+      ),
     );
   }
 }

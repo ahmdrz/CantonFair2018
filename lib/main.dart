@@ -9,6 +9,7 @@ import './pages/settings.dart';
 import './pages/splash-screen.dart';
 import './pages/series.dart';
 import './pages/selected-series.dart';
+import './pages/selected-phase.dart';
 import './utils/ui.dart';
 
 main() {
@@ -55,6 +56,15 @@ class CantonFair extends StatelessWidget {
           (BuildContext context, Map<String, List<String>> params) {
         return new SelectedSeriesRoute(
           uuid: params['series_uuid'][0],
+        );
+      }),
+    );
+    router.define(
+      '/phases/:phase',
+      handler: Handler(handlerFunc:
+          (BuildContext context, Map<String, List<String>> params) {
+        return new SelectedPhaseRoute(
+          phase: params['phase'][0],
         );
       }),
     );

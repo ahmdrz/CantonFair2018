@@ -135,6 +135,36 @@ Widget makeDrawer(BuildContext context) {
             Application.router.navigateTo(context, '/categories');
           },
         ),
+        ExpansionTile(
+          leading: new Icon(Icons.class_),
+          title: Text("Phases", style: TextStyle(fontSize: 14.0, fontWeight: FontWeight.w500)),
+          children: <Widget>[
+            ListTile(
+              leading: new Icon(Icons.list),
+              title: Text('Phase 1'),
+              onTap: () {
+                Navigator.pop(context);
+                Application.router.navigateTo(context, '/phases/1');
+              },
+            ),
+            ListTile(
+              leading: new Icon(Icons.list),
+              title: Text('Phase 2'),
+              onTap: () {
+                Navigator.pop(context);
+                Application.router.navigateTo(context, '/phases/2');
+              },
+            ),
+            ListTile(
+              leading: new Icon(Icons.list),
+              title: Text('Phase 3'),
+              onTap: () {
+                Navigator.pop(context);
+                Application.router.navigateTo(context, '/phases/3');
+              },
+            ),
+          ],
+        ),
         ListTile(
           leading: new Icon(Icons.cloud),
           title: Text('Server'),

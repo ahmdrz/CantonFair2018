@@ -79,7 +79,8 @@ class _CameraRoute extends State<CameraRoute>
             children: <Widget>[
               IconButton(
                 color: whiteColor,
-                icon: Icon(!_isVideoSelected ? Icons.videocam : Icons.photo_camera),
+                icon: Icon(
+                    !_isVideoSelected ? Icons.videocam : Icons.photo_camera),
                 onPressed: controller != null &&
                         controller.value.isInitialized &&
                         controller.value.isRecordingVideo
@@ -145,7 +146,7 @@ class _CameraRoute extends State<CameraRoute>
         setState(() {
           imagePath = filePath;
         });
-        if (filePath != null) {
+        if (filePath != null) {          
           ImageModel image = ImageModel(filePath: filePath, seriesUUID: uuid);
           ImageModel.updateImage(image);
         }
