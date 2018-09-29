@@ -7,6 +7,7 @@ import 'package:path_provider/path_provider.dart';
 
 import '../utils/ui.dart';
 import '../models/ImageModel.dart';
+import '../config/application.dart';
 
 List<Choice> choices;
 
@@ -177,9 +178,8 @@ class _CameraRoute extends State<CameraRoute>
       showInSnackBar('Error: select a camera first.');
       return null;
     }
-
-    final Directory extDir = await getApplicationDocumentsDirectory();
-    final String dirPath = '${extDir.path}/Movies/flutter_test';
+    
+    final String dirPath = '${Application.appDir}/Movies';
     await Directory(dirPath).create(recursive: true);
     final String filePath = '$dirPath/${timestamp()}.mp4';
 
@@ -215,9 +215,8 @@ class _CameraRoute extends State<CameraRoute>
     if (!controller.value.isInitialized) {
       showInSnackBar('Error: select a camera first.');
       return null;
-    }
-    final Directory extDir = await getApplicationDocumentsDirectory();
-    final String dirPath = '${extDir.path}/Pictures/flutter_test';
+    }    
+    final String dirPath = '${Application.appDir}/Pictures';
     await Directory(dirPath).create(recursive: true);
     final String filePath = '$dirPath/${timestamp()}.jpg';
 

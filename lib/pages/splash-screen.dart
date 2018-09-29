@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:fluro/fluro.dart';
 import 'package:flutter/material.dart';
 import 'package:camera/camera.dart';
+import 'package:simple_permissions/simple_permissions.dart';
 
 import '../pages/camera.dart';
 import '../config/application.dart';
@@ -52,16 +53,50 @@ class _SplashScreenRoute extends State<SplashScreenRoute> {
   }
 
   _startApp() {
-    Future.delayed(Duration(seconds: 2)).then((delay) {
+    Future.delayed(Duration(seconds: 1)).then((delay) {
       Application.router
           .navigateTo(context, "/home", transition: TransitionType.fadeIn);
     });
   }
 
+  Future<bool> requestPermissions() async {
+    final writeAccess = await SimplePermissions.requestPermission(
+        Permission.WriteExternalStorage);
+    final cameraAccess =
+        await SimplePermissions.requestPermission(Permission.Camera);
+    final recordAudio =
+        await SimplePermissions.requestPermission(Permission.RecordAudio);
+
+    if (writeAccess != PermissionStatus.authorized) {
+      return false;
+    }
+    if (cameraAccess != PermissionStatus.authorized) {
+      return false;
+    }
+    if (recordAudio != PermissionStatus.authorized) {
+      return false;
+    }
+
+    return true;
+  }
+
   @override
   void initState() {
     super.initState();
-    Application.cache = new Map<String, dynamic>();    
+
+    Future.delayed(Duration(seconds: 2)).then((_) {
+      requestPermissions().then((ok) {
+        if (ok) {
+          _handleStart();
+        } else {
+          this.initState();
+        }
+      });
+    });
+  }
+
+  _handleStart() {
+    Application.cache = new Map<String, dynamic>();
 
     try {
       availableCameras().then((cameras) {
