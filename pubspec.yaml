@@ -25,6 +25,7 @@ dependencies:
   intl: any 
   simple_permissions: "^0.1.2"
   flutter_swiper : any
+  flutter_speed_dial: any
 
 dev_dependencies:
   flutter_test:

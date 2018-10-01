@@ -1,4 +1,7 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
+import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 import 'package:intl/intl.dart';
 
 import '../config/application.dart';
@@ -18,18 +21,21 @@ class SeriesRoute extends StatefulWidget {
 
 class _SeriesRoute extends State<SeriesRoute>
     with SingleTickerProviderStateMixin {
-  final String phase;
-  final String category;
+  String sortInv = 'DESC';
 
+  final String phase;
+
+  final String category;
   List<Series> list = new List<Series>();
+
   List<Series> displayList = new List<Series>();
   bool _ready = false;
-
   _SeriesRoute({this.phase, this.category});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      floatingActionButton: _renderSpeedDial(),
       body: new NestedScrollView(
         headerSliverBuilder: (BuildContext context, bool innerBoxIsScrolled) {
           return <Widget>[
@@ -79,32 +85,8 @@ class _SeriesRoute extends State<SeriesRoute>
 
   @override
   void initState() {
+    _sortBy('created_at');
     super.initState();
-    if (phase != null) {
-      Series.getSeriesByPhase(phase).then((result) {
-        setState(() {
-          list = result;
-          displayList = list;
-          _ready = true;
-        });
-      });
-    } else if (category != null) {      
-      Series.getSeriesByCategory(category).then((result) {
-        setState(() {
-          list = result;
-          displayList = list;
-          _ready = true;
-        });
-      });
-    } else {
-      Series.getSeries().then((result) {
-        setState(() {
-          list = result;
-          displayList = list;
-          _ready = true;
-        });
-      });
-    }
   }
 
   _getIconNumber(number) {
@@ -143,6 +125,39 @@ class _SeriesRoute extends State<SeriesRoute>
     Application.router.navigateTo(context, '/series/$uuid');
   }
 
+  _renderSpeedDial() {
+    return SpeedDial(
+      overlayOpacity: 0.1,
+      overlayColor: primaryColor,
+      animatedIcon: AnimatedIcons.menu_close,
+      animatedIconTheme: IconThemeData(size: 22.0),
+      curve: Curves.elasticInOut,
+      children: [
+        SpeedDialChild(
+          child: Icon(Icons.sort_by_alpha, color: Colors.white),
+          backgroundColor: primaryColor,
+          onTap: () => _sortBy('title'),
+          label: 'Alphabet',
+          labelStyle: TextStyle(fontWeight: FontWeight.w500),
+        ),
+        SpeedDialChild(
+          child: Icon(Icons.star, color: Colors.white),
+          backgroundColor: primaryColor,
+          onTap: () => _sortBy('rating'),
+          label: 'Rating',
+          labelStyle: TextStyle(fontWeight: FontWeight.w500),
+        ),
+        SpeedDialChild(
+          child: Icon(Icons.date_range, color: Colors.white),
+          backgroundColor: primaryColor,
+          onTap: () => _sortBy('created_at'),
+          label: 'Created At',
+          labelStyle: TextStyle(fontWeight: FontWeight.w500),
+        ),
+      ],
+    );
+  }
+
   _searchHandler(text) {
     setState(() {
       displayList = list.where((t) {
@@ -175,7 +190,7 @@ class _SeriesRoute extends State<SeriesRoute>
             children: <Widget>[
               Text('${item.description}', style: TextStyle(fontSize: 12.0)),
               Text(
-                ' ( ${formatter.format(item.createdAt)} )',
+                ' ( ${formatter.format(item.createdAt)} / phase ${item.phase} )',
                 style: TextStyle(fontSize: 10.0),
               ),
             ],
@@ -188,5 +203,30 @@ class _SeriesRoute extends State<SeriesRoute>
         );
       },
     );
+  }
+
+  void _sortBy(order) {
+    Future<List<Series>> handler;
+    var inv = sortInv;
+
+    if (phase != null)
+      handler = Series.getSeriesByPhase(phase, order: order, inv: inv);
+    else if (category != null)
+      handler =
+          Series.getSeriesByCategory(category, order: order, inv: inv);
+    else
+      handler = Series.getSeries(order: order, inv: inv);
+
+    handler.then((result) {
+      setState(() {
+        if (inv == 'DESC') 
+          sortInv = 'ASC';
+        else
+          sortInv = 'DESC';       
+        list = result;
+        displayList = list;
+        _ready = true;
+      });
+    });
   }
 }

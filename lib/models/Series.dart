@@ -74,10 +74,11 @@ class Series {
     count = result[0]['count'];
   }
 
-  static Future<Category> getCategoryOfSeriesUUID(uuid) async {
+  static Future<Category> getCategoryOfSeriesUUID(uuid,
+      {inv: 'desc', order: 'created_at'}) async {
     var series = await getSelectedSeriesByUUID(uuid);
     var result = await db.rawQuery(
-        'SELECT * FROM ${Category.tableName} WHERE ${Category.dbUUID} = "${series.categoryUUID}";');
+        'SELECT * FROM ${Category.tableName} WHERE ${Category.dbUUID} = "${series.categoryUUID}" ORDER BY "$order $inv";');
     List<Category> categories = [];
     for (Map<String, dynamic> item in result) {
       categories.add(new Category.fromMap(item));
@@ -86,9 +87,10 @@ class Series {
     return null;
   }
 
-  static Future<Series> getSelectedSeriesByUUID(uuid) async {
-    var result =
-        await db.rawQuery('SELECT * FROM $tableName WHERE $dbUUID = "$uuid";');
+  static Future<Series> getSelectedSeriesByUUID(uuid,
+      {inv: 'desc', order: 'created_at'}) async {
+    var result = await db.rawQuery(
+        'SELECT * FROM $tableName WHERE $dbUUID = "$uuid" ORDER BY "$order $inv";');
     List<Series> series = [];
     for (Map<String, dynamic> item in result) {
       Series s = new Series.fromMap(item);
@@ -97,11 +99,12 @@ class Series {
     }
     if (series.length > 0) return series[0];
     return null;
-  }  
+  }
 
-  static Future<List<Series>> getSeriesByCategory(String category) async {
-    var result = await db
-        .rawQuery('SELECT * FROM $tableName WHERE $dbCategoryUUID = "$category";');
+  static Future<List<Series>> getSeriesByCategory(String category,
+      {inv: 'desc', order: 'created_at'}) async {
+    var result = await db.rawQuery(
+        'SELECT * FROM $tableName WHERE $dbCategoryUUID = "$category" ORDER BY "$order $inv";');
     List<Series> series = [];
     for (Map<String, dynamic> item in result) {
       Series s = new Series.fromMap(item);
@@ -111,9 +114,10 @@ class Series {
     return series;
   }
 
-  static Future<List<Series>> getSeriesByPhase(phase) async {
-    var result = await db
-        .rawQuery('SELECT * FROM $tableName WHERE $dbPhase = "$phase";');
+  static Future<List<Series>> getSeriesByPhase(phase,
+      {inv: 'desc', order: 'created_at'}) async {
+    var result = await db.rawQuery(
+        'SELECT * FROM $tableName WHERE $dbPhase = "$phase" ORDER BY "$order $inv";');
     List<Series> series = [];
     for (Map<String, dynamic> item in result) {
       Series s = new Series.fromMap(item);
@@ -124,9 +128,13 @@ class Series {
   }
 
   static Future<List<Series>> getSeries(
-      {bool pagination = false, int limit = 10, int page = 0}) async {
+      {bool pagination = false,
+      int limit = 10,
+      int page = 0,
+      inv: 'DESC',
+      order: 'created_at'}) async {
     var result = await db.rawQuery(
-        'SELECT * FROM $tableName ORDER BY $dbCreatedAt DESC ' +
+        'SELECT * FROM $tableName ORDER BY $order $inv' +
             (pagination ? 'LIMIT $limit OFFSET ${page * limit};' : ';'));
     List<Series> series = [];
     for (Map<String, dynamic> item in result) {
