@@ -70,7 +70,7 @@ class _CategoriesRoute extends State<CategoriesRoute> {
   }
 
   void _categoryPressed(Category category) {
-    print("Category ${category.name} pressed !");
+    Application.router.navigateTo(context, "/categories/${category.uuid}");
   }
 
   @override

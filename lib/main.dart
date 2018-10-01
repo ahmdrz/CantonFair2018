@@ -62,7 +62,7 @@ class CantonFair extends StatelessWidget {
       '/phases/:phase',
       handler: Handler(handlerFunc:
           (BuildContext context, Map<String, List<String>> params) {
-        return new SeriesRoute.byPhase(
+        return new SeriesRoute(
           phase: params['phase'][0],
         );
       }),
@@ -72,6 +72,15 @@ class CantonFair extends StatelessWidget {
       handler: Handler(handlerFunc:
           (BuildContext context, Map<String, List<String>> params) {
         return new CategoriesRoute();
+      }),
+    );
+    router.define(
+      '/categories/:category_uuid',
+      handler: Handler(handlerFunc:
+          (BuildContext context, Map<String, List<String>> params) {
+        return new SeriesRoute(
+          category: params['category_uuid'][0],
+        );
       }),
     );
     router.define(

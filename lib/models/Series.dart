@@ -97,6 +97,18 @@ class Series {
     }
     if (series.length > 0) return series[0];
     return null;
+  }  
+
+  static Future<List<Series>> getSeriesByCategory(String category) async {
+    var result = await db
+        .rawQuery('SELECT * FROM $tableName WHERE $dbCategoryUUID = "$category";');
+    List<Series> series = [];
+    for (Map<String, dynamic> item in result) {
+      Series s = new Series.fromMap(item);
+      await s.fetchCount();
+      series.add(s);
+    }
+    return series;
   }
 
   static Future<List<Series>> getSeriesByPhase(phase) async {

@@ -7,24 +7,25 @@ import '../utils/ui.dart';
 
 class SeriesRoute extends StatefulWidget {
   final String phase;
+  final String category;
 
-  SeriesRoute({this.phase});
-
-  SeriesRoute.byPhase({this.phase});
+  SeriesRoute({this.phase, this.category});
 
   @override
-  _SeriesRoute createState() => new _SeriesRoute(phase: phase);
+  _SeriesRoute createState() =>
+      new _SeriesRoute(phase: phase, category: category);
 }
 
 class _SeriesRoute extends State<SeriesRoute>
     with SingleTickerProviderStateMixin {
   final String phase;
+  final String category;
 
   List<Series> list = new List<Series>();
   List<Series> displayList = new List<Series>();
   bool _ready = false;
 
-  _SeriesRoute({this.phase});
+  _SeriesRoute({this.phase, this.category});
 
   @override
   Widget build(BuildContext context) {
@@ -79,8 +80,16 @@ class _SeriesRoute extends State<SeriesRoute>
   @override
   void initState() {
     super.initState();
-    if (phase == null) {
-      Series.getSeries().then((result) {
+    if (phase != null) {
+      Series.getSeriesByPhase(phase).then((result) {
+        setState(() {
+          list = result;
+          displayList = list;
+          _ready = true;
+        });
+      });
+    } else if (category != null) {      
+      Series.getSeriesByCategory(category).then((result) {
         setState(() {
           list = result;
           displayList = list;
@@ -88,7 +97,7 @@ class _SeriesRoute extends State<SeriesRoute>
         });
       });
     } else {
-      Series.getSeriesByPhase(phase).then((result) {
+      Series.getSeries().then((result) {
         setState(() {
           list = result;
           displayList = list;
