@@ -34,13 +34,13 @@ class _SettingsRoute extends State<SettingsRoute> {
           ? _showLoading()
           : ListView(
               children: <Widget>[
-                ListTile(
-                  title: Text("Clear database"),
-                  leading: Icon(Icons.storage),
-                  onTap: () {
-                    confirmDialog(context, "Are you sure ?", () {});
-                  },
-                ),
+                // ListTile(
+                //   title: Text("Clear database"),
+                //   leading: Icon(Icons.storage),
+                //   onTap: () {
+                //     confirmDialog(context, "Are you sure ?", () {});
+                //   },
+                // ),
                 ListTile(
                   title: Text("Backup from database"),
                   leading: Icon(Icons.backup),

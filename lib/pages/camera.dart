@@ -3,10 +3,11 @@ import 'dart:io';
 
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
-import 'package:path_provider/path_provider.dart';
 
 import '../utils/ui.dart';
 import '../models/ImageModel.dart';
+import '../models/Category.dart';
+import '../models/Series.dart';
 import '../config/application.dart';
 
 List<Choice> choices;
@@ -36,6 +37,7 @@ class _CameraRoute extends State<CameraRoute>
   String imagePath;
   String videoPath;
   bool _isVideoSelected;
+  Category _category;
 
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
@@ -106,6 +108,11 @@ class _CameraRoute extends State<CameraRoute>
   @override
   void initState() {
     _isVideoSelected = false;
+    Series.getCategoryOfSeriesUUID(uuid).then((result) {
+      setState(() {
+        _category = result;
+      });
+    });
     super.initState();
   }
 
@@ -147,7 +154,7 @@ class _CameraRoute extends State<CameraRoute>
         setState(() {
           imagePath = filePath;
         });
-        if (filePath != null) {          
+        if (filePath != null) {
           ImageModel image = ImageModel(filePath: filePath, seriesUUID: uuid);
           ImageModel.updateImage(image);
         }
@@ -178,8 +185,8 @@ class _CameraRoute extends State<CameraRoute>
       showInSnackBar('Error: select a camera first.');
       return null;
     }
-    
-    final String dirPath = '${Application.appDir}/Movies';
+
+    final String dirPath = '${Application.appDir}/Categories/${_category.name}/Movies';
     await Directory(dirPath).create(recursive: true);
     final String filePath = '$dirPath/${timestamp()}.mp4';
 
@@ -215,8 +222,8 @@ class _CameraRoute extends State<CameraRoute>
     if (!controller.value.isInitialized) {
       showInSnackBar('Error: select a camera first.');
       return null;
-    }    
-    final String dirPath = '${Application.appDir}/Pictures';
+    }
+    final String dirPath = '${Application.appDir}/Categories/Pictures/${_category.name}';
     await Directory(dirPath).create(recursive: true);
     final String filePath = '$dirPath/${timestamp()}.jpg';
 

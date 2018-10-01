@@ -165,13 +165,13 @@ Widget makeDrawer(BuildContext context) {
             ),
           ],
         ),
-        ListTile(
-          leading: new Icon(Icons.cloud),
-          title: Text('Server'),
-          onTap: () {
-            Navigator.pop(context);
-          },
-        ),
+        // ListTile(
+        //   leading: new Icon(Icons.cloud),
+        //   title: Text('Server'),
+        //   onTap: () {
+        //     Navigator.pop(context);
+        //   },
+        // ),
         ListTile(
           leading: new Icon(Icons.settings),
           title: Text('Settings'),

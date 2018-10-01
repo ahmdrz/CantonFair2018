@@ -1,16 +1,15 @@
 import 'dart:async';
 
-import 'package:fluro/fluro.dart';
 import 'package:flutter/material.dart';
 import 'package:camera/camera.dart';
 import 'package:simple_permissions/simple_permissions.dart';
 
 import '../pages/camera.dart';
+import '../pages/home.dart';
 import '../config/application.dart';
 import '../utils/ui.dart';
 import '../models/Category.dart';
 
-/// Returns a suitable camera icon for [direction].
 IconData getCameraLensIcon(CameraLensDirection direction) {
   switch (direction) {
     case CameraLensDirection.back:
@@ -53,10 +52,21 @@ class _SplashScreenRoute extends State<SplashScreenRoute> {
   }
 
   _startApp() {
-    Future.delayed(Duration(seconds: 1)).then((delay) {
-      Application.router
-          .navigateTo(context, "/home", transition: TransitionType.fadeIn);
-    });
+    Navigator.pushReplacement(
+      context,
+      PageRouteBuilder(
+        pageBuilder: (BuildContext context, _, __) {
+          return HomeRoute();
+        },
+        transitionDuration: const Duration(milliseconds: 500),
+        transitionsBuilder: (_, Animation<double> animation, __, Widget child) {
+          return new FadeTransition(
+            opacity: animation,
+            child: child,
+          );
+        },
+      ),
+    );
   }
 
   Future<bool> requestPermissions() async {
@@ -84,14 +94,12 @@ class _SplashScreenRoute extends State<SplashScreenRoute> {
   void initState() {
     super.initState();
 
-    Future.delayed(Duration(seconds: 2)).then((_) {
-      requestPermissions().then((ok) {
-        if (ok) {
-          _handleStart();
-        } else {
-          this.initState();
-        }
-      });
+    requestPermissions().then((ok) {
+      if (ok) {
+        _handleStart();
+      } else {
+        this.initState();
+      }
     });
   }
 

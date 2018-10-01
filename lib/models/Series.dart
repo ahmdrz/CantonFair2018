@@ -4,6 +4,7 @@ import 'package:uuid/uuid.dart';
 import 'package:sqflite/sqflite.dart';
 
 import './ImageModel.dart';
+import './Category.dart';
 
 class Series {
   static Database db;
@@ -69,8 +70,20 @@ class Series {
 
   fetchCount() async {
     var result = await db.rawQuery(
-        'SELECT COUNT(*) as count FROM ${ImageModel.tableName} WHERE ${ImageModel.dbSeriesUUID} = "$uuid";');    
+        'SELECT COUNT(*) as count FROM ${ImageModel.tableName} WHERE ${ImageModel.dbSeriesUUID} = "$uuid";');
     count = result[0]['count'];
+  }
+
+  static Future<Category> getCategoryOfSeriesUUID(uuid) async {
+    var series = await getSelectedSeriesByUUID(uuid);
+    var result = await db.rawQuery(
+        'SELECT * FROM ${Category.tableName} WHERE ${Category.dbUUID} = "${series.categoryUUID}";');
+    List<Category> categories = [];
+    for (Map<String, dynamic> item in result) {
+      categories.add(new Category.fromMap(item));
+    }
+    if (categories.length > 0) return categories[0];
+    return null;
   }
 
   static Future<Series> getSelectedSeriesByUUID(uuid) async {
@@ -87,21 +100,22 @@ class Series {
   }
 
   static Future<List<Series>> getSeriesByPhase(phase) async {
-    var result =
-        await db.rawQuery('SELECT * FROM $tableName WHERE $dbPhase = "$phase";');
+    var result = await db
+        .rawQuery('SELECT * FROM $tableName WHERE $dbPhase = "$phase";');
     List<Series> series = [];
     for (Map<String, dynamic> item in result) {
       Series s = new Series.fromMap(item);
       await s.fetchCount();
       series.add(s);
-    }    
+    }
     return series;
   }
 
   static Future<List<Series>> getSeries(
       {bool pagination = false, int limit = 10, int page = 0}) async {
-    var result = await db.rawQuery('SELECT * FROM $tableName ORDER BY $dbCreatedAt DESC ' +
-        (pagination ? 'LIMIT $limit OFFSET ${page * limit};' : ';'));
+    var result = await db.rawQuery(
+        'SELECT * FROM $tableName ORDER BY $dbCreatedAt DESC ' +
+            (pagination ? 'LIMIT $limit OFFSET ${page * limit};' : ';'));
     List<Series> series = [];
     for (Map<String, dynamic> item in result) {
       Series s = new Series.fromMap(item);
