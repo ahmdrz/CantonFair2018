@@ -1,14 +1,11 @@
 import 'package:flutter/material.dart';
-
+import 'package:flutter_swiper/flutter_swiper.dart';
 import 'package:intl/intl.dart';
 
-import 'dart:math';
-
-import '../utils/ui.dart';
-import '../models/Series.dart';
 import '../models/Category.dart';
 import '../models/ImageModel.dart';
-import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
+import '../models/Series.dart';
+import '../utils/ui.dart';
 
 class SelectedSeriesRoute extends StatefulWidget {
   final String uuid;
@@ -16,6 +13,39 @@ class SelectedSeriesRoute extends StatefulWidget {
 
   @override
   _SelectedSeriesRoute createState() => new _SelectedSeriesRoute(uuid: uuid);
+}
+
+class _CardTile extends StatelessWidget {
+  final gridImage;
+  const _CardTile(this.gridImage);
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      child: new GestureDetector(
+        onTap: () {
+          print("$gridImage");
+        },
+        child: new Container(
+          decoration: new BoxDecoration(
+            color: primaryColor,
+            boxShadow: [
+              new BoxShadow(
+                offset: Offset(0.0, 8.0),
+                color: Colors.black.withOpacity(0.35),
+                blurRadius: 8.0,                
+              ),
+            ],
+            image: new DecorationImage(
+              image: new AssetImage(gridImage),
+              fit: BoxFit.cover,
+            ),
+            borderRadius: new BorderRadius.all(const Radius.circular(10.0)),
+          ),
+        ),
+      ),
+      padding: EdgeInsets.only(bottom: 30.0),
+    );
+  }
 }
 
 class _SelectedSeriesRoute extends State<SelectedSeriesRoute>
@@ -28,12 +58,6 @@ class _SelectedSeriesRoute extends State<SelectedSeriesRoute>
   List<ImageModel> _images = List<ImageModel>();
 
   TabController _tabController;
-
-  @override
-  void dispose() {
-    _tabController.dispose();
-    super.dispose();
-  }
 
   _SelectedSeriesRoute({this.uuid}) {
     Series.getSelectedSeriesByUUID(uuid).then((series) {
@@ -51,9 +75,19 @@ class _SelectedSeriesRoute extends State<SelectedSeriesRoute>
     });
   }
 
-  String _makeTitle(String input) {
-    String title = input[0].toUpperCase() + input.substring(1);
-    return title;
+  @override
+  Widget build(BuildContext context) {
+    return _loading ? _loadingContainer() : _scaffold();
+  }
+
+  @override
+  void dispose() {
+    _tabController.dispose();
+    super.dispose();
+  }
+
+  heading(text) {
+    return Text(text, style: TextStyle(fontSize: 18.0));
   }
 
   @override
@@ -61,10 +95,20 @@ class _SelectedSeriesRoute extends State<SelectedSeriesRoute>
     super.initState();
   }
 
-  _showImage(image) {}
+  _loadingContainer() {
+    return Container(
+      color: primaryColor,
+      child: Center(
+        child: CircularProgressIndicator(
+          valueColor: new AlwaysStoppedAnimation<Color>(whiteColor),
+        ),
+      ),
+    );
+  }
 
-  heading(text) {
-    return Text(text, style: TextStyle(fontSize: 18.0));
+  String _makeTitle(String input) {
+    String title = input[0].toUpperCase() + input.substring(1);
+    return title;
   }
 
   _scaffold() {
@@ -123,16 +167,14 @@ class _SelectedSeriesRoute extends State<SelectedSeriesRoute>
             ),
           ),
           Padding(
-            padding: const EdgeInsets.all(10.0),
-            child: StaggeredGridView.countBuilder(
-              crossAxisCount: 4,
+            padding: const EdgeInsets.only(top: 30.0, bottom: 30.0),
+            child: new Swiper(
+              viewportFraction: 0.8,
+              scale: 0.9,
+              itemBuilder: (BuildContext context, int index) {
+                return _CardTile(_images[index].filePath);
+              },
               itemCount: _images.length,
-              itemBuilder: (BuildContext context, int index) =>
-                  _CardTile(_images[index].filePath),
-              staggeredTileBuilder: (int index) =>
-                  new StaggeredTile.count(2, index.isEven ? 2 : 1),
-              mainAxisSpacing: 4.0,
-              crossAxisSpacing: 4.0,
             ),
           ),
         ],
@@ -153,44 +195,5 @@ class _SelectedSeriesRoute extends State<SelectedSeriesRoute>
     );
   }
 
-  _loadingContainer() {
-    return Container(
-      color: primaryColor,
-      child: Center(
-        child: CircularProgressIndicator(
-          valueColor: new AlwaysStoppedAnimation<Color>(whiteColor),
-        ),
-      ),
-    );
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return _loading ? _loadingContainer() : _scaffold();
-  }
-}
-
-class _CardTile extends StatelessWidget {
-  const _CardTile(this.gridImage);
-  final gridImage;
-  @override
-  Widget build(BuildContext context) {
-    return new Card(
-      color: const Color(0x00000000),
-      elevation: 7.0,
-      child: new GestureDetector(
-        onTap: () {
-          print("$gridImage");
-        },
-        child: new Container(
-            decoration: new BoxDecoration(
-          image: new DecorationImage(
-            image: new AssetImage(gridImage),
-            fit: BoxFit.cover,
-          ),
-          borderRadius: new BorderRadius.all(const Radius.circular(10.0)),
-        )),
-      ),
-    );
-  }
+  _showImage(image) {}
 }

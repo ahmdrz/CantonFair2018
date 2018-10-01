@@ -38,6 +38,7 @@ class _CameraRoute extends State<CameraRoute>
   String videoPath;
   bool _isVideoSelected;
   Category _category;
+  bool _loading = false;
 
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
@@ -60,19 +61,27 @@ class _CameraRoute extends State<CameraRoute>
             ? Colors.red
             : whiteColor,
         elevation: 4.0,
-        child: Icon(_isVideoSelected ? Icons.videocam : Icons.photo_camera),
-        onPressed: () {
-          if (_isVideoSelected) {
-            if (controller.value.isRecordingVideo)
-              onStopButtonPressed();
-            else
-              onVideoRecordButtonPressed();
-          } else
-            onTakePictureButtonPressed();
-        },
+        child: _loading
+            ? Padding(
+                padding: EdgeInsets.all(15.0),
+                child: CircularProgressIndicator(                  
+                  valueColor: new AlwaysStoppedAnimation<Color>(Colors.white),
+                ),
+              )
+            : Icon(_isVideoSelected ? Icons.videocam : Icons.photo_camera),
+        onPressed: _loading
+            ? null
+            : () {
+                if (_isVideoSelected) {
+                  if (controller.value.isRecordingVideo)
+                    onStopButtonPressed();
+                  else
+                    onVideoRecordButtonPressed();
+                } else
+                  onTakePictureButtonPressed();
+              },
       ),
       bottomNavigationBar: BottomAppBar(
-        shape: CircularNotchedRectangle(),
         color: primaryColor,
         child: Padding(
           padding: const EdgeInsets.all(5.0),
@@ -149,10 +158,14 @@ class _CameraRoute extends State<CameraRoute>
   }
 
   void onTakePictureButtonPressed() {
+    setState(() {
+      _loading = true;
+    });
     takePicture().then((String filePath) {
       if (mounted) {
         setState(() {
           imagePath = filePath;
+          _loading = false;
         });
         if (filePath != null) {
           ImageModel image = ImageModel(filePath: filePath, seriesUUID: uuid);
@@ -186,7 +199,8 @@ class _CameraRoute extends State<CameraRoute>
       return null;
     }
 
-    final String dirPath = '${Application.appDir}/Categories/${_category.name}/Movies';
+    final String dirPath =
+        '${Application.appDir}/Categories/${_category.name}/Movies';
     await Directory(dirPath).create(recursive: true);
     final String filePath = '$dirPath/${timestamp()}.mp4';
 
@@ -223,7 +237,8 @@ class _CameraRoute extends State<CameraRoute>
       showInSnackBar('Error: select a camera first.');
       return null;
     }
-    final String dirPath = '${Application.appDir}/Categories/Pictures/${_category.name}';
+    final String dirPath =
+        '${Application.appDir}/Categories/Pictures/${_category.name}';
     await Directory(dirPath).create(recursive: true);
     final String filePath = '$dirPath/${timestamp()}.jpg';
 
