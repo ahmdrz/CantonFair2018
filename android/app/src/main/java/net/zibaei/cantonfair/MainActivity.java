@@ -1,4 +1,4 @@
-package com.example.cantonfair;
+package net.zibaei.cantonfair;
 
 import android.os.Bundle;
 import io.flutter.app.FlutterActivity;
