@@ -74,10 +74,15 @@ class _SeriesRoute extends State<SeriesRoute>
               results: list
                   .map(
                     (Series s) => new MaterialSearchResult<Series>(
-                          icon: Icons.dehaze,
+                          widget: ListTile(
+                            subtitle: Text("${_makeTitle(s.description)}"),
+                            leading: Icon(Icons.dehaze),
+                            title: Text("${_makeTitle(s.title)}"),
+                          ),
+                          // icon: Icons.dehaze,
                           value: s,
-                          subtitle: "${_makeTitle(s.description)}",
-                          text: "${_makeTitle(s.title)}",
+                          // subtitle: "${_makeTitle(s.description)}",
+                          // text: "${_makeTitle(s.title)}",
                         ),
                   )
                   .toList(),

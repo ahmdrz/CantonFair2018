@@ -15,23 +15,26 @@ class MaterialSearchResult<T> extends StatelessWidget {
   const MaterialSearchResult({
     Key key,
     this.value,
-    this.text,
-    this.subtitle,
-    this.icon,
+    this.widget,
+    // this.text,
+    // this.subtitle,
+    // this.icon,
   }) : super(key: key);
 
   final T value;
-  final String text;
-  final String subtitle;
-  final IconData icon;
+  final Widget widget;
+  // final String text;
+  // final String subtitle;
+  // final IconData icon;
 
   @override
   Widget build(BuildContext context) {
-    return ListTile(
-      title: Text(text),
-      leading: Icon(icon),
-      subtitle: Text(subtitle),
-    );
+    return widget;
+    // return ListTile(
+    //   title: Text(text),
+    //   leading: Icon(icon),
+    //   subtitle: Text(subtitle),
+    // );
     // return new Container(
     //   child: new Row(
     //     children: <Widget>[
