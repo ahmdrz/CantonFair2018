@@ -14,7 +14,7 @@ class HomeRoute extends StatefulWidget {
 
 class _HomeRoute extends State<HomeRoute> {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
-  
+
   List<Category> _categories = new List<Category>();
   Category _category = new Category();
 
@@ -135,6 +135,52 @@ class _HomeRoute extends State<HomeRoute> {
     return scaffoldWrapper(
       context: context,
       key: _scaffoldKey,
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
+      floatingActionButton: FloatingActionButton(
+        backgroundColor: secondaryColor,
+        foregroundColor: whiteColor,
+        elevation: 8.0,
+        child: Icon(Icons.blur_on),
+        onPressed: () {
+          if (!_readyForCamera) {
+            showInSnackBar("You have to fill them up.");
+            return;
+          }
+
+          Series currentSeries = Series(
+            description: _description,
+            title: _title,
+            phase: _phaseSelector,
+            rating: _rating.toInt(),
+            categoryUUID: _category.uuid,
+          );
+          Series.updateCategory(currentSeries).then((_) {
+            Application.router
+                .navigateTo(context, '/camera/${currentSeries.uuid}');
+          });
+        },
+      ),
+      bottomNavigationBar: BottomAppBar(
+        shape: CircularNotchedRectangle(),
+        color: primaryColor,
+        child: Padding(
+          padding: const EdgeInsets.all(5.0),
+          child: new Row(
+            mainAxisSize: MainAxisSize.max,
+            mainAxisAlignment: MainAxisAlignment.start,
+            children: <Widget>[
+              IconButton(
+                color: whiteColor,
+                icon: Icon(Icons.refresh),
+                onPressed: () {
+                  Application.router.navigateTo(context, '/');
+                },
+                iconSize: 30.0,
+              ),
+            ],
+          ),
+        ),
+      ),
       body: Container(
         child: Center(
           child: Container(
@@ -186,7 +232,7 @@ class _HomeRoute extends State<HomeRoute> {
                 ListTile(
                   leading: Icon(Icons.title),
                   title: Text("Enter your title"),
-                  subtitle: _title != '' ? Text(_title) : null,
+                  subtitle: _title != '' ? Text(_title) : Text("Tap to edit"),
                   onTap: () {
                     _getTitleDialog();
                   },
@@ -194,7 +240,7 @@ class _HomeRoute extends State<HomeRoute> {
                 ListTile(
                   leading: Icon(Icons.description),
                   title: Text("Write description"),
-                  subtitle: _description != '' ? Text(_description) : null,
+                  subtitle: _description != '' ? Text(_description) : Text("Tap to edit"),
                   onTap: () {
                     _getDescriptionDialog();
                   },
@@ -214,35 +260,7 @@ class _HomeRoute extends State<HomeRoute> {
                           },
                         ),
                   ),
-                ),
-                Divider(),
-                ListTile(
-                  subtitle: Text(!_readyForCamera
-                      ? 'You have to fill them up.'
-                      : "I'm ready to capture your moments"),
-                  title: Text("Open camera"),
-                  leading: Icon(Icons.camera,
-                      color: _readyForCamera ? primaryColor : Colors.red),
-                  onTap: () {
-                    if (!_readyForCamera) {
-                      showInSnackBar("You have to fill them up.");
-                      return;
-                    }
-
-                    Series currentSeries = Series(
-                      description: _description,
-                      title: _title,
-                      phase: _phaseSelector,
-                      rating: _rating.toInt(),
-                      categoryUUID: _category.uuid,
-                    );
-                    Series.updateCategory(currentSeries).then((_) {
-                      Application.router
-                          .navigateTo(context, '/camera/${currentSeries.uuid}');
-                    });
-                  },
-                  // onTap: _showDialog,
-                ),
+                ),                
               ],
             ),
             width: 400.0,

@@ -58,13 +58,6 @@ Widget scaffoldWrapper({
               icon: Icon(Icons.menu, color: whiteColor),
               onPressed: () => key.currentState.openDrawer(),
             ),
-            actions: <Widget>[
-              new FlatButton(
-                  child: Text("Restart", style: TextStyle(color: whiteColor)),
-                  onPressed: () {
-                    Application.router.navigateTo(context, '/');
-                  }),
-            ],
             title: Text('CantonFair 2018', style: TextStyle(color: whiteColor)),
             backgroundColor: primaryColor,
             elevation: appBarShadow ? 4.0 : 0.0,

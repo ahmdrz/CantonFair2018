@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 import 'package:intl/intl.dart';
 
+import '../utils/search.dart';
 import '../config/application.dart';
 import '../models/Series.dart';
 import '../utils/ui.dart';
@@ -28,7 +29,6 @@ class _SeriesRoute extends State<SeriesRoute>
   final String category;
   List<Series> list = new List<Series>();
 
-  List<Series> displayList = new List<Series>();
   bool _ready = false;
   _SeriesRoute({this.phase, this.category});
 
@@ -36,44 +36,16 @@ class _SeriesRoute extends State<SeriesRoute>
   Widget build(BuildContext context) {
     return Scaffold(
       floatingActionButton: _renderSpeedDial(),
-      body: new NestedScrollView(
-        headerSliverBuilder: (BuildContext context, bool innerBoxIsScrolled) {
-          return <Widget>[
-            new SliverAppBar(
-              elevation: 4.0,
-              forceElevated: true,
-              snap: true,
-              pinned: true,
-              title: new Text("Series"),
-              floating: true,
-              bottom: PreferredSize(
-                preferredSize: const Size.fromHeight(60.0),
-                child: Theme(
-                  data: Theme.of(context).copyWith(accentColor: Colors.white),
-                  child: Container(
-                    height: 60.0,
-                    alignment: Alignment.center,
-                    child: ListTile(
-                      leading: Icon(Icons.search, color: whiteColor),
-                      title: new TextField(
-                        style: TextStyle(color: whiteColor),
-                        onChanged: (text) => _searchHandler(text),
-                        decoration: new InputDecoration(
-                          border: InputBorder.none,
-                          hintText: 'Search based on description and title ...',
-                          hintStyle: TextStyle(
-                            color: Colors.white70,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-            ),
-          ];
-        },
-        body: _ready ? _showResults() : _showLoading(),
+      body: _ready ? _showResults() : _showLoading(),
+      appBar: AppBar(
+        title: Text('Series'),
+        actions: <Widget>[
+          IconButton(
+            onPressed: _ready ? () => _showMaterialSearch(context) : null,
+            tooltip: 'Search',
+            icon: Icon(Icons.search),
+          )
+        ],
       ),
     );
   }
@@ -87,6 +59,47 @@ class _SeriesRoute extends State<SeriesRoute>
   void initState() {
     _sortBy('created_at');
     super.initState();
+  }
+
+  _buildMaterialSearchPage(BuildContext context) {
+    return new MaterialPageRoute<String>(
+        settings: new RouteSettings(
+          name: 'material_search',
+          isInitialRoute: false,
+        ),
+        builder: (BuildContext context) {
+          return new Material(
+            child: new MaterialSearch<Series>(
+              placeholder: 'Search',
+              results: list
+                  .map(
+                    (Series s) => new MaterialSearchResult<Series>(
+                          icon: Icons.dehaze,
+                          value: s,
+                          subtitle: "${_makeTitle(s.description)}",
+                          text: "${_makeTitle(s.title)}",
+                        ),
+                  )
+                  .toList(),
+              filter: (dynamic value, String criteria) {
+                value = value as Series;
+                var _titleCondition = value.title
+                    .toLowerCase()
+                    .trim()
+                    .contains(RegExp(r'' + criteria.toLowerCase().trim() + ''));
+                var _descriptionCondition = value.description
+                    .toLowerCase()
+                    .trim()
+                    .contains(RegExp(r'' + criteria.toLowerCase().trim() + ''));
+                return _titleCondition || _descriptionCondition;
+              },
+              onSelect: (dynamic value) {
+                Navigator.pop(context, (value as Series).uuid);
+              },
+              onSubmit: (dynamic value) {},
+            ),
+          );
+        });
   }
 
   _getIconNumber(number) {
@@ -158,14 +171,6 @@ class _SeriesRoute extends State<SeriesRoute>
     );
   }
 
-  _searchHandler(text) {
-    setState(() {
-      displayList = list.where((t) {
-        return t.title.contains(text) || t.description.contains(text);
-      }).toList();
-    });
-  }
-
   Widget _showLoading() {
     return Container(
       child: Center(
@@ -176,12 +181,21 @@ class _SeriesRoute extends State<SeriesRoute>
     );
   }
 
+  _showMaterialSearch(BuildContext context) {
+    Navigator.of(context)
+        .push(_buildMaterialSearchPage(context))
+        .then((dynamic value) {
+      if (value == null) return;
+      _openSeries(value as String);
+    });
+  }
+
   Widget _showResults() {
     return ListView.builder(
       padding: EdgeInsets.all(0.0),
-      itemCount: displayList.length,
+      itemCount: list.length,
       itemBuilder: (context, index) {
-        Series item = displayList[index];
+        Series item = list[index];
         var formatter = DateFormat('MM/dd HH:mm');
         return ListTile(
           leading: Icon(_getIconNumber(item.count), color: primaryColor),
@@ -212,19 +226,17 @@ class _SeriesRoute extends State<SeriesRoute>
     if (phase != null)
       handler = Series.getSeriesByPhase(phase, order: order, inv: inv);
     else if (category != null)
-      handler =
-          Series.getSeriesByCategory(category, order: order, inv: inv);
+      handler = Series.getSeriesByCategory(category, order: order, inv: inv);
     else
       handler = Series.getSeries(order: order, inv: inv);
 
     handler.then((result) {
       setState(() {
-        if (inv == 'DESC') 
+        if (inv == 'DESC')
           sortInv = 'ASC';
         else
-          sortInv = 'DESC';       
+          sortInv = 'DESC';
         list = result;
-        displayList = list;
         _ready = true;
       });
     });
