@@ -4,11 +4,11 @@ import 'dart:io';
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 
-import '../utils/ui.dart';
-import '../models/ImageModel.dart';
-import '../models/Category.dart';
-import '../models/Series.dart';
 import '../config/application.dart';
+import '../models/Category.dart';
+import '../models/ImageModel.dart';
+import '../models/Series.dart';
+import '../utils/ui.dart';
 
 List<Choice> choices;
 
@@ -31,101 +31,44 @@ class Choice {
   const Choice({this.title, this.icon, this.camera});
 }
 
-class _CameraRoute extends State<CameraRoute>
-    with SingleTickerProviderStateMixin {
+enum Options { video, videoRecording, photo, audio, audioRecording }
+
+class _CameraRoute extends State<CameraRoute> {
+  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+  
   CameraController controller;
   String imagePath;
   String videoPath;
-  bool _isVideoSelected;
+
+  var _state = Options.photo;
+  bool _initializing = false;
+
   Category _category;
   bool _loading = false;
 
-  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
-
   final String uuid;
-
   _CameraRoute({this.uuid});
 
   @override
   Widget build(BuildContext context) {
-    return scaffoldWrapper(
-      context: context,
-      pageName: "Camera",
+    return Scaffold(
       key: _scaffoldKey,
       backgroundColor: Colors.black,
       appBar: _makeAppBar(),
       floatingActionButtonLocation: FloatingActionButtonLocation.endDocked,
-      floatingActionButton: FloatingActionButton(
-        backgroundColor: secondaryColor,
-        foregroundColor: controller != null && controller.value.isRecordingVideo
-            ? Colors.red
-            : whiteColor,
-        elevation: 4.0,
-        child: _loading
-            ? Padding(
-                padding: EdgeInsets.all(15.0),
-                child: CircularProgressIndicator(                  
-                  valueColor: new AlwaysStoppedAnimation<Color>(Colors.white),
-                ),
-              )
-            : Icon(_isVideoSelected ? Icons.videocam : Icons.photo_camera),
-        onPressed: _loading
-            ? null
-            : () {
-                if (_isVideoSelected) {
-                  if (controller.value.isRecordingVideo)
-                    onStopButtonPressed();
-                  else
-                    onVideoRecordButtonPressed();
-                } else
-                  onTakePictureButtonPressed();
-              },
-      ),
-      bottomNavigationBar: BottomAppBar(
-        color: primaryColor,
-        child: Padding(
-          padding: const EdgeInsets.all(5.0),
-          child: new Row(
-            mainAxisSize: MainAxisSize.max,
-            mainAxisAlignment: MainAxisAlignment.start,
-            children: <Widget>[
-              IconButton(
-                color: whiteColor,
-                icon: Icon(
-                    !_isVideoSelected ? Icons.videocam : Icons.photo_camera),
-                onPressed: controller != null &&
-                        controller.value.isInitialized &&
-                        controller.value.isRecordingVideo
-                    ? null
-                    : () {
-                        setState(() {
-                          _isVideoSelected = !_isVideoSelected;
-                        });
-                      },
-                iconSize: 30.0,
-              ),
-            ],
-          ),
-        ),
-      ),
-      body: Align(
-        child: _cameraPreviewWidget(),
-      ),
+      floatingActionButton: _floatingButton(),
+      bottomNavigationBar: _bottomAppBar(),
+      body: _initializing ? _showLoading() : _cameraPreviewWidget(),
     );
   }
 
   @override
   void initState() {
-    _isVideoSelected = false;
-    Series.getCategoryOfSeriesUUID(uuid).then((result) {
-      setState(() {
-        _category = result;
-      });
-    });
+    _prepare();
     super.initState();
   }
 
-  void onNewCameraSelected(CameraDescription cameraDescription) async {
+  Future onNewCameraSelected(CameraDescription cameraDescription) async {
     if (controller != null) {
       await controller.dispose();
     }
@@ -152,8 +95,8 @@ class _CameraRoute extends State<CameraRoute>
 
   void onStopButtonPressed() {
     stopVideoRecording().then((_) {
+      _state = Options.video;
       if (mounted) setState(() {});
-      showInSnackBar('Video recorded to: $videoPath');
     });
   }
 
@@ -177,8 +120,8 @@ class _CameraRoute extends State<CameraRoute>
 
   void onVideoRecordButtonPressed() {
     startVideoRecording().then((String filePath) {
+      _state = Options.videoRecording;
       if (mounted) setState(() {});
-      if (filePath != null) showInSnackBar('Saving video to $filePath');
     });
   }
 
@@ -260,53 +203,129 @@ class _CameraRoute extends State<CameraRoute>
 
   String timestamp() => DateTime.now().millisecondsSinceEpoch.toString();
 
-  /// Display the preview from the camera (or a message if the preview is not available).
-  Widget _cameraPreviewWidget() {
-    if (controller == null || !controller.value.isInitialized) {
-      onNewCameraSelected(choices[0].camera);
-      return Container();
-    } else {
-      // return SizedBox(child: CameraPreview(controller));
+  _bottomAppBar() {
+    return BottomAppBar(
+      elevation: 4.0,
+      color: primaryColor,
+      shape: CircularNotchedRectangle(),
+      child: Padding(
+        padding: const EdgeInsets.all(5.0),
+        child: new Row(
+          mainAxisSize: MainAxisSize.max,
+          mainAxisAlignment: MainAxisAlignment.start,
+          children: <Widget>[
+            IconButton(
+              color: whiteColor,
+              icon: Icon(Icons.photo_camera),
+              onPressed: _changeIfState(_state == Options.photo, Options.photo),
+            ),
+            IconButton(
+              color: whiteColor,
+              icon: Icon(Icons.videocam),
+              onPressed: _changeIfState(
+                _state == Options.video || _state == Options.videoRecording,
+                Options.video,
+              ),
+            ),
+            IconButton(
+              color: whiteColor,
+              icon: Icon(Icons.record_voice_over),
+              onPressed: _changeIfState(
+                _state == Options.audio || _state == Options.audioRecording,
+                Options.audio,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
 
-      return AspectRatio(
+  Widget _cameraPreviewWidget() {
+    return Align(
+      child: AspectRatio(
         aspectRatio: controller.value.aspectRatio,
         child: CameraPreview(controller),
+      ),
+    );
+  }
+
+  Function _captureButtonHandler() {
+    if (_loading) return null;
+    return () {
+      if (_state == Options.photo) {
+        onTakePictureButtonPressed();
+      } else if (_state == Options.video) {
+        onVideoRecordButtonPressed();
+      } else if (_state == Options.videoRecording) {
+        onStopButtonPressed();
+      }
+    };
+  }
+
+  Function _changeIfState(condition, target) {
+    void changeState() {
+      setState(() {
+        _state = target;
+      });
+    }
+
+    return condition ? null : changeState;
+  }
+
+  Widget _floatingButtonChild() {
+    if (_loading) {
+      return Padding(
+        padding: EdgeInsets.all(15.0),
+        child: CircularProgressIndicator(
+          valueColor: new AlwaysStoppedAnimation<Color>(Colors.white),
+        ),
       );
     }
+    if (_state == Options.audioRecording || _state == Options.videoRecording) {
+      return Icon(Icons.stop);
+    }
+    return Icon(Icons.archive);
+  }
+
+  Widget _floatingButton() {
+    return FloatingActionButton(
+      backgroundColor: secondaryColor,
+      foregroundColor: whiteColor,
+      child: _floatingButtonChild(),
+      onPressed: _captureButtonHandler(),
+    );
   }
 
   Widget _makeAppBar() {
     return AppBar(
-      leading: new IconButton(
-        icon: Icon(Icons.arrow_back, color: whiteColor),
-        onPressed: () => Navigator.pop(context),
-      ),
-      title: Text('Camera handler', style: TextStyle(color: whiteColor)),
+      title: Text('Capture', style: TextStyle(color: whiteColor)),
       backgroundColor: primaryColor,
-      actions: <Widget>[
-        PopupMenuButton<Choice>(
-          icon: new Icon(Icons.more_vert, color: whiteColor),
-          padding: EdgeInsets.all(10.0),
-          onSelected: _select,
-          itemBuilder: (BuildContext context) {
-            return choices.map((Choice choice) {
-              return PopupMenuItem<Choice>(
-                value: choice,
-                child: Text(choice.title),
-              );
-            }).toList();
-          },
-        ),
-      ],
+      elevation: 4.0,
     );
   }
 
-  void _select(Choice choice) {
-    // onNewCameraSelected(choice.camera);
+  void _prepare() async {
+    _initializing = true;
+    _category = await Series.getCategoryOfSeriesUUID(uuid);
+    await onNewCameraSelected(choices[0].camera);
+    await Future.delayed(Duration(milliseconds: 500));
+    _initializing = false;
+    setState(() {});
   }
 
   void _showCameraException(CameraException e) {
     logError(e.code, e.description);
     showInSnackBar('Error: ${e.code}\n${e.description}');
+  }
+
+  Widget _showLoading() {
+    return Container(
+      child: Center(
+        child: CircularProgressIndicator(
+          valueColor: new AlwaysStoppedAnimation<Color>(primaryColor),
+        ),
+      ),
+    );
   }
 }
