@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:camera/camera.dart';
 import 'package:simple_permissions/simple_permissions.dart';
 
-import '../pages/camera.dart';
+import '../pages/capture.dart';
 import '../pages/home.dart';
 import '../config/application.dart';
 import '../utils/ui.dart';

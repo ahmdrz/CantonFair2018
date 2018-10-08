@@ -15,12 +15,12 @@ List<Choice> choices;
 void logError(String code, String message) =>
     print('Error: $code\nError Message: $message');
 
-class CameraRoute extends StatefulWidget {
+class CaptureRoute extends StatefulWidget {
   final String uuid;
-  CameraRoute({this.uuid});
+  CaptureRoute({this.uuid});
 
   @override
-  _CameraRoute createState() => new _CameraRoute(uuid: uuid);
+  _CaptureRoute createState() => new _CaptureRoute(uuid: uuid);
 }
 
 class Choice {
@@ -33,7 +33,7 @@ class Choice {
 
 enum Options { video, videoRecording, photo, audio, audioRecording }
 
-class _CameraRoute extends State<CameraRoute> with TickerProviderStateMixin {
+class _CaptureRoute extends State<CaptureRoute> with TickerProviderStateMixin {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
   AnimationController _animationController;
@@ -50,7 +50,7 @@ class _CameraRoute extends State<CameraRoute> with TickerProviderStateMixin {
   bool _loading = false;
 
   final String uuid;
-  _CameraRoute({this.uuid});
+  _CaptureRoute({this.uuid});
 
   @override
   Widget build(BuildContext context) {
@@ -162,10 +162,7 @@ class _CameraRoute extends State<CameraRoute> with TickerProviderStateMixin {
     await Directory(dirPath).create(recursive: true);
     final String filePath = '$dirPath/${timestamp()}.mp4';
 
-    if (controller.value.isRecordingVideo) {
-      // A recording is already started, do nothing.
-      return null;
-    }
+    print("$filePath");
 
     try {
       videoPath = filePath;
@@ -201,11 +198,6 @@ class _CameraRoute extends State<CameraRoute> with TickerProviderStateMixin {
     final String filePath = '$dirPath/${timestamp()}.jpg';
 
     print("$filePath");
-
-    if (controller.value.isTakingPicture) {
-      // A capture is already pending, do nothing.
-      return null;
-    }
 
     try {
       await controller.takePicture(filePath);

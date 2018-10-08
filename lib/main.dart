@@ -2,7 +2,7 @@ import 'package:fluro/fluro.dart';
 import 'package:flutter/material.dart';
 
 import './config/application.dart';
-import './pages/camera.dart';
+import './pages/capture.dart';
 import './pages/categories.dart';
 import './pages/home.dart';
 import './pages/settings.dart';
@@ -37,7 +37,7 @@ class CantonFair extends StatelessWidget {
       '/camera/:series_uuid',
       handler: Handler(handlerFunc:
           (BuildContext context, Map<String, List<String>> params) {
-        return new CameraRoute(
+        return new CaptureRoute(
           uuid: params['series_uuid'][0],
         );
       }),
