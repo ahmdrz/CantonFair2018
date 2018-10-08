@@ -3,7 +3,7 @@ import 'dart:async';
 import 'package:uuid/uuid.dart';
 import 'package:sqflite/sqflite.dart';
 
-import './ImageModel.dart';
+import './CaptureModel.dart';
 import './Category.dart';
 
 class Series {
@@ -70,7 +70,7 @@ class Series {
 
   fetchCount() async {
     var result = await db.rawQuery(
-        'SELECT COUNT(*) as count FROM ${ImageModel.tableName} WHERE ${ImageModel.dbSeriesUUID} = "$uuid";');
+        'SELECT COUNT(*) as count FROM ${CaptureModel.tableName} WHERE ${CaptureModel.dbSeriesUUID} = "$uuid";');
     count = result[0]['count'];
   }
 

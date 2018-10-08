@@ -3,7 +3,7 @@ import 'package:flutter_swiper/flutter_swiper.dart';
 import 'package:intl/intl.dart';
 
 import '../models/Category.dart';
-import '../models/ImageModel.dart';
+import '../models/CaptureModel.dart';
 import '../models/Series.dart';
 import '../utils/ui.dart';
 
@@ -55,16 +55,16 @@ class _SelectedSeriesRoute extends State<SelectedSeriesRoute>
   bool _loading = true;
   Series _selectedSeries = Series();
   Category _selectedCategory = Category(name: "unknown");
-  List<ImageModel> _images = List<ImageModel>();
+  List<CaptureModel> _items = List<CaptureModel>();
 
   TabController _tabController;
 
   _SelectedSeriesRoute({this.uuid}) {
     Series.getSelectedSeriesByUUID(uuid).then((series) {
-      ImageModel.getImagesOfSeries(uuid).then((images) {
+      CaptureModel.getItemsOfSeries(uuid).then((items) {
         Category.getCategoryByUUID(series.categoryUUID).then((category) {
           setState(() {
-            _images = images;
+            _items = items;
             _selectedCategory = category;
             _selectedSeries = series;
             _loading = false;
@@ -183,7 +183,7 @@ class _SelectedSeriesRoute extends State<SelectedSeriesRoute>
             style: TextStyle(color: whiteColor)),
         backgroundColor: primaryColor,
       ),
-      body: _images.length > 0
+      body: _items.length > 0
           ? TabBarView(
               controller: _tabController,
               children: <Widget>[
@@ -194,22 +194,22 @@ class _SelectedSeriesRoute extends State<SelectedSeriesRoute>
                     viewportFraction: 0.8,
                     scale: 0.9,
                     itemBuilder: (BuildContext context, int index) {
-                      return _CardTile(_images[index].filePath);
+                      return _CardTile(_items[index].filePath);
                     },
-                    itemCount: _images.length,
+                    itemCount: _items.length,
                   ),
                 )
               ],
             )
           : _listView(),
-      bottomNavigationBar: _images.length > 0
+      bottomNavigationBar: _items.length > 0
           ? new TabBar(
               controller: _tabController,
               tabs: [
                 Tab(
                   text: "Detials",
                 ),
-                _images.length > 0
+                _items.length > 0
                     ? Tab(
                         text: "Gallery",
                       )

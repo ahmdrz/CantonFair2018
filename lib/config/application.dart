@@ -7,7 +7,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:sqflite/sqflite.dart';
 
 import '../models/Category.dart';
-import '../models/ImageModel.dart';
+import '../models/CaptureModel.dart';
 import '../models/Series.dart';
 
 class Application {
@@ -54,12 +54,12 @@ class Application {
         // print("Droping ${Series.tableName} ...");
         // await db.execute("DROP TABLE ${Series.tableName};");
 
-        // print("Droping ${ImageModel.tableName} ...");
-        // await db.execute("DROP TABLE ${ImageModel.tableName};");
+        // print("Droping ${CaptureModel.tableName} ...");
+        // await db.execute("DROP TABLE ${CaptureModel.tableName};");
 
-        print("Creating ${ImageModel.tableName} ...");
-        await db.execute(ImageModel.dbOnCreate);
-        ImageModel.db = db;
+        print("Creating ${CaptureModel.tableName} ...");
+        await db.execute(CaptureModel.dbOnCreate);
+        CaptureModel.db = db;
 
         print("Creating ${Category.tableName} ...");
         await db.execute(Category.dbOnCreate);

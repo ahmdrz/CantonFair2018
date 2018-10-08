@@ -6,7 +6,7 @@ import 'package:flutter/material.dart';
 
 import '../config/application.dart';
 import '../models/Category.dart';
-import '../models/ImageModel.dart';
+import '../models/CaptureModel.dart';
 import '../models/Series.dart';
 import '../utils/ui.dart';
 
@@ -40,8 +40,6 @@ class _CaptureRoute extends State<CaptureRoute> with TickerProviderStateMixin {
   Animation _animation;
 
   CameraController controller;
-  String imagePath;
-  String videoPath;
 
   var _state = Options.photo;
   bool _initializing = false;
@@ -121,21 +119,37 @@ class _CaptureRoute extends State<CaptureRoute> with TickerProviderStateMixin {
     takePicture().then((String filePath) {
       if (mounted) {
         setState(() {
-          imagePath = filePath;
           _loading = false;
         });
         if (filePath != null) {
-          ImageModel image = ImageModel(filePath: filePath, seriesUUID: uuid);
-          ImageModel.updateImage(image);
+          CaptureModel image = CaptureModel(
+              filePath: filePath,
+              seriesUUID: uuid,
+              captureMode: CaptureMode.picture);
+          CaptureModel.updateItem(image);
         }
       }
     });
   }
 
   void onVideoRecordButtonPressed() {
+    setState(() {
+      _loading = true;
+    });
     startVideoRecording().then((String filePath) {
       _state = Options.videoRecording;
-      if (mounted) setState(() {});
+      if (mounted) {
+        setState(() {
+          _loading = false;
+        });
+        if (filePath != null) {
+          CaptureModel video = CaptureModel(
+              filePath: filePath,
+              seriesUUID: uuid,
+              captureMode: CaptureMode.video);
+          CaptureModel.updateItem(video);
+        }
+      }
     });
   }
 
@@ -157,14 +171,13 @@ class _CaptureRoute extends State<CaptureRoute> with TickerProviderStateMixin {
     }
 
     final String dirPath =
-        '${Application.appDir}/Categories/${_category.name}/Movies';
+        '${Application.appDir}/Categories/${_category.name}/$uuid/Movies';
     await Directory(dirPath).create(recursive: true);
     final String filePath = '$dirPath/${timestamp()}.mp4';
 
     print("$filePath");
 
     try {
-      videoPath = filePath;
       await controller.startVideoRecording(filePath);
     } on CameraException catch (e) {
       _showCameraException(e);
@@ -192,7 +205,7 @@ class _CaptureRoute extends State<CaptureRoute> with TickerProviderStateMixin {
       return null;
     }
     final String dirPath =
-        '${Application.appDir}/Categories/Pictures/${_category.name}';
+        '${Application.appDir}/Categories/${_category.name}/$uuid/Pictures';
     await Directory(dirPath).create(recursive: true);
     final String filePath = '$dirPath/${timestamp()}.jpg';
 
