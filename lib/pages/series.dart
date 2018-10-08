@@ -23,6 +23,8 @@ class SeriesRoute extends StatefulWidget {
 class _SeriesRoute extends State<SeriesRoute>
     with SingleTickerProviderStateMixin {
   String sortInv = 'DESC';
+  String sortOrder = '';
+  String basedOn = '';
 
   final String phase;
 
@@ -38,7 +40,7 @@ class _SeriesRoute extends State<SeriesRoute>
       floatingActionButton: _renderSpeedDial(),
       body: _ready ? _showResults() : _showLoading(),
       appBar: AppBar(
-        title: Text('Series'),
+        title: Text('Series' + (basedOn == '' ? '' : ' ($basedOn)')),
         actions: <Widget>[
           IconButton(
             onPressed: _ready ? () => _showMaterialSearch(context) : null,
@@ -140,7 +142,9 @@ class _SeriesRoute extends State<SeriesRoute>
   }
 
   void _openSeries(uuid) {
-    Application.router.navigateTo(context, '/series/$uuid');
+    Application.router.navigateTo(context, '/series/$uuid').then((_) {
+      _sortBy(sortOrder);
+    });
   }
 
   _renderSpeedDial() {
@@ -218,7 +222,17 @@ class _SeriesRoute extends State<SeriesRoute>
             "${item.rating}/5 (${item.count} images)",
             style: TextStyle(fontSize: 12.0),
           ),
-          onTap: item.count > 0 ? () => _openSeries(item.uuid) : null,
+          onTap: () => _openSeries(item.uuid),
+          onLongPress: () {
+            confirmDialog(
+              context,
+              "Do you want to delete this series ?",
+              () => Series.deleteSeries(item.uuid).then((_) {
+                    list.removeAt(index);
+                    setState(() {});
+                  }),
+            );
+          },
         );
       },
     );
@@ -228,15 +242,20 @@ class _SeriesRoute extends State<SeriesRoute>
     Future<List<Series>> handler;
     var inv = sortInv;
 
-    if (phase != null)
+    if (phase != null) {
+      basedOn = 'Phase $phase';
       handler = Series.getSeriesByPhase(phase, order: order, inv: inv);
-    else if (category != null)
+    } else if (category != null) {
+      basedOn = 'Category';
       handler = Series.getSeriesByCategory(category, order: order, inv: inv);
-    else
+    } else {
+      basedOn = '';
       handler = Series.getSeries(order: order, inv: inv);
+    }
 
     handler.then((result) {
       setState(() {
+        sortOrder = order;
         if (inv == 'DESC')
           sortInv = 'ASC';
         else

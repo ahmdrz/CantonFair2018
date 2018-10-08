@@ -89,7 +89,6 @@ class _CategoriesRoute extends State<CategoriesRoute> {
               confirmDialog(context, "Are you sure ?", () {});
             },
           ),
-          padding: EdgeInsets.all(10.0),
         ),
       );
     }

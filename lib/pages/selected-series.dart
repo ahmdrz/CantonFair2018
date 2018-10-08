@@ -32,7 +32,7 @@ class _CardTile extends StatelessWidget {
               new BoxShadow(
                 offset: Offset(0.0, 8.0),
                 color: Colors.black.withOpacity(0.35),
-                blurRadius: 8.0,                
+                blurRadius: 8.0,
               ),
             ],
             image: new DecorationImage(
@@ -111,9 +111,68 @@ class _SelectedSeriesRoute extends State<SelectedSeriesRoute>
     return title;
   }
 
-  _scaffold() {
+  Widget _listView() {
     var formatter = DateFormat("yyyy/MM/dd 'at' HH:mm:ss");
 
+    return ListView(
+      children: <Widget>[
+        ListTile(
+          title: Text("Title:"),
+          subtitle: Text(_makeTitle(_selectedSeries.title)),
+          leading: Icon(Icons.title),
+        ),
+        ListTile(
+          title: Text("Description:"),
+          subtitle: Text(_makeTitle(_selectedSeries.description)),
+          leading: Icon(Icons.description),
+        ),
+        ListTile(
+          title: Text("Created at:"),
+          subtitle: Text(formatter.format(_selectedSeries.createdAt)),
+          leading: Icon(Icons.calendar_today),
+        ),
+        ListTile(
+          title: Text("Rating:"),
+          subtitle: Text("Score was ${_selectedSeries.rating}/5"),
+          leading: Icon(Icons.stars),
+        ),
+        ListTile(
+          title: Text("Phase:"),
+          subtitle: Text("Phase ${_selectedSeries.phase} (tap for more info)"),
+          leading: Icon(Icons.class_),
+          onTap: () {
+            Navigator.pushNamed(context, '/phases/${_selectedSeries.phase}');
+          },
+        ),
+        ListTile(
+          title: Text("Category:"),
+          subtitle: Text("${_selectedCategory.name} (tap for more info)"),
+          leading: Icon(Icons.list),
+          onTap: () {
+            Navigator.pushNamed(
+                context, '/categories/${_selectedCategory.uuid}');
+          },
+        ),
+        ListTile(
+          title: Text("Delete this series"),
+          subtitle: Text("(Hold this item to delete)"),
+          leading: Icon(Icons.delete),
+          onTap: () {},
+          onLongPress: () {
+            confirmDialog(
+              context,
+              "Do you want to delete this series ?",
+              () => Series.deleteSeries(uuid).then((_) {
+                    Navigator.pop(context);
+                  }),
+            );
+          },
+        ),
+      ],
+    );
+  }
+
+  _scaffold() {
     return Scaffold(
       appBar: AppBar(
         leading: new IconButton(
@@ -124,74 +183,42 @@ class _SelectedSeriesRoute extends State<SelectedSeriesRoute>
             style: TextStyle(color: whiteColor)),
         backgroundColor: primaryColor,
       ),
-      body: TabBarView(
-        controller: _tabController,
-        children: <Widget>[
-          Container(
-            padding: EdgeInsets.all(10.0),
-            child: ListView(
+      body: _images.length > 0
+          ? TabBarView(
+              controller: _tabController,
               children: <Widget>[
-                ListTile(
-                  title: Text("Title:"),
-                  subtitle: Text(_makeTitle(_selectedSeries.title)),
-                  leading: Icon(Icons.title),
-                ),
-                ListTile(
-                  title: Text("Description:"),
-                  subtitle: Text(_makeTitle(_selectedSeries.description)),
-                  leading: Icon(Icons.description),
-                ),
-                ListTile(
-                  title: Text("Created at:"),
-                  subtitle: Text(formatter.format(_selectedSeries.createdAt)),
-                  leading: Icon(Icons.calendar_today),
-                ),
-                ListTile(
-                  title: Text("Rating:"),
-                  subtitle: Text("Score was ${_selectedSeries.rating}/5"),
-                  leading: Icon(Icons.stars),
-                ),
-                ListTile(
-                  title: Text("Phase:"),
-                  subtitle: Text(
-                      "Phase ${_selectedSeries.phase} (tap for more info)"),
-                  leading: Icon(Icons.class_),
-                ),
-                ListTile(
-                  title: Text("Category:"),
-                  subtitle:
-                      Text("${_selectedCategory.name} (tap for more info)"),
-                  leading: Icon(Icons.list),
-                ),
+                _listView(),
+                Padding(
+                  padding: const EdgeInsets.only(top: 30.0, bottom: 30.0),
+                  child: new Swiper(
+                    viewportFraction: 0.8,
+                    scale: 0.9,
+                    itemBuilder: (BuildContext context, int index) {
+                      return _CardTile(_images[index].filePath);
+                    },
+                    itemCount: _images.length,
+                  ),
+                )
               ],
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.only(top: 30.0, bottom: 30.0),
-            child: new Swiper(
-              viewportFraction: 0.8,
-              scale: 0.9,
-              itemBuilder: (BuildContext context, int index) {
-                return _CardTile(_images[index].filePath);
-              },
-              itemCount: _images.length,
-            ),
-          ),
-        ],
-      ),
-      bottomNavigationBar: new TabBar(
-        controller: _tabController,
-        tabs: [
-          Tab(
-            text: "Detials",
-          ),
-          Tab(
-            text: "Gallery",
-          ),
-        ],
-        labelColor: secondaryColor,
-        unselectedLabelColor: Colors.black,
-      ),
+            )
+          : _listView(),
+      bottomNavigationBar: _images.length > 0
+          ? new TabBar(
+              controller: _tabController,
+              tabs: [
+                Tab(
+                  text: "Detials",
+                ),
+                _images.length > 0
+                    ? Tab(
+                        text: "Gallery",
+                      )
+                    : null,
+              ],
+              labelColor: secondaryColor,
+              unselectedLabelColor: Colors.black,
+            )
+          : null,
     );
   }
 

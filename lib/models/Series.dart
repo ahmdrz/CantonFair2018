@@ -145,6 +145,12 @@ class Series {
     return series;
   }
 
+  static Future deleteSeries(String uuid) async {
+    await db.rawDelete('DELETE FROM $tableName WHERE ${Series.dbUUID} = ?', [
+      uuid,
+    ]);
+  }
+
   static Future updateCategory(Series category) async {
     await db.rawInsert(
         'INSERT OR REPLACE INTO '

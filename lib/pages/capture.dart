@@ -89,7 +89,6 @@ class _CaptureRoute extends State<CaptureRoute> with TickerProviderStateMixin {
     }
     controller = CameraController(cameraDescription, ResolutionPreset.high);
 
-    // If the controller is updated then update the UI.
     controller.addListener(() {
       if (mounted) setState(() {});
       if (controller.value.hasError) {
