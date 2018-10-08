@@ -43,7 +43,6 @@ class _HomeRoute extends State<HomeRoute> {
   }
 
   _getDescriptionDialog() async {
-    _inputTitleController = new TextEditingController();
     await showDialog<String>(
         context: context,
         builder: (BuildContext context) {
@@ -79,7 +78,6 @@ class _HomeRoute extends State<HomeRoute> {
   }
 
   _getTitleDialog() async {
-    _inputTitleController = new TextEditingController();
     await showDialog<String>(
         context: context,
         builder: (BuildContext context) {
