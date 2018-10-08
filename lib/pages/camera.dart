@@ -33,9 +33,12 @@ class Choice {
 
 enum Options { video, videoRecording, photo, audio, audioRecording }
 
-class _CameraRoute extends State<CameraRoute> {
+class _CameraRoute extends State<CameraRoute> with TickerProviderStateMixin {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
-  
+
+  AnimationController _animationController;
+  Animation _animation;
+
   CameraController controller;
   String imagePath;
   String videoPath;
@@ -64,6 +67,18 @@ class _CameraRoute extends State<CameraRoute> {
 
   @override
   void initState() {
+    _animationController = AnimationController(
+      vsync: this,
+      duration: Duration(seconds: 5),
+    );
+
+    _animation = Tween(begin: 0.0, end: 500.0).animate(
+      CurvedAnimation(
+        parent: _animationController,
+        curve: Curves.fastOutSlowIn,
+      ),
+    );
+
     _prepare();
     super.initState();
   }
@@ -256,6 +271,7 @@ class _CameraRoute extends State<CameraRoute> {
       if (_state == Options.photo) {
         onTakePictureButtonPressed();
       } else if (_state == Options.video) {
+        _animationController.repeat();
         onVideoRecordButtonPressed();
       } else if (_state == Options.videoRecording) {
         onStopButtonPressed();
@@ -283,7 +299,24 @@ class _CameraRoute extends State<CameraRoute> {
       );
     }
     if (_state == Options.audioRecording || _state == Options.videoRecording) {
-      return Icon(Icons.stop);
+      return AnimatedBuilder(
+        animation: _animationController,
+        builder: (BuildContext context, Widget child) {
+          int value = (_animation.value as double).toInt();
+          if (value > 250) {
+            value = 500 - value;
+          }
+          double size = value / 5.0;
+          if (size < 30.0) {
+            size = 30.0;
+          }
+          return Icon(
+            Icons.stop,
+            size: size,
+            color: Colors.black.withRed(value),
+          );
+        },
+      );
     }
     return Icon(Icons.archive);
   }
