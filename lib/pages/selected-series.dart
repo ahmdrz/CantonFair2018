@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_swiper/flutter_swiper.dart';
 import 'package:intl/intl.dart';
+
+// import 'package:flutter_swiper/flutter_swiper.dart';
 
 import '../models/Category.dart';
 import '../models/CaptureModel.dart';
@@ -17,33 +18,66 @@ class SelectedSeriesRoute extends StatefulWidget {
 
 class _CardTile extends StatelessWidget {
   final gridImage;
-  const _CardTile(this.gridImage);
+  final typeOfItem;
+  const _CardTile(this.gridImage, this.typeOfItem);
+
+  IconData _getIcon(type) {
+    switch (type) {
+      case CaptureMode.audio:
+        return Icons.audiotrack;
+      case CaptureMode.video:
+        return Icons.videocam;
+      case CaptureMode.picture:
+        return Icons.photo_camera;
+      default:
+        return Icons.perm_media;
+    }
+  }
+
+  String _getImage(type) {
+    switch (type) {
+      case CaptureMode.picture:
+        return gridImage;
+      default:
+        return "assets/purple-materials.jpg";
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      child: new GestureDetector(
-        onTap: () {
-          print("$gridImage");
-        },
-        child: new Container(
-          decoration: new BoxDecoration(
-            color: primaryColor,
-            boxShadow: [
-              new BoxShadow(
-                offset: Offset(0.0, 8.0),
-                color: Colors.black.withOpacity(0.35),
-                blurRadius: 8.0,
-              ),
-            ],
-            image: new DecorationImage(
-              image: new AssetImage(gridImage),
-              fit: BoxFit.cover,
+    double width = MediaQuery.of(context).size.width;
+
+    return GestureDetector(
+      onTap: () {
+        print("$gridImage");
+      },
+      child: new Container(
+        child: Container(
+          color: primaryColor.withOpacity(0.3),
+          child: Center(
+            child: Icon(
+              _getIcon(typeOfItem),
+              color: Colors.white.withOpacity(0.75),
+              size: width * 0.2,
             ),
-            borderRadius: new BorderRadius.all(const Radius.circular(10.0)),
           ),
         ),
+        decoration: new BoxDecoration(
+          color: primaryColor,
+          boxShadow: [
+            new BoxShadow(
+              offset: Offset(0.0, 4.0),
+              color: Colors.black.withOpacity(0.25),
+              blurRadius: 4.0,
+            ),
+          ],
+          image: new DecorationImage(
+            image: new AssetImage(_getImage(typeOfItem)),
+            fit: BoxFit.cover,
+          ),
+          borderRadius: new BorderRadius.all(const Radius.circular(5.0)),
+        ),
       ),
-      padding: EdgeInsets.only(bottom: 30.0),
     );
   }
 }
@@ -168,6 +202,15 @@ class _SelectedSeriesRoute extends State<SelectedSeriesRoute>
             );
           },
         ),
+        ListTile(
+          title: Text("Add new items"),
+          subtitle: Text("(Hold to open capture page)"),
+          leading: Icon(Icons.camera),
+          onTap: () {},
+          onLongPress: () {
+            Navigator.popAndPushNamed(context, "/camera/${_selectedSeries.uuid}");
+          },
+        ),
       ],
     );
   }
@@ -175,52 +218,50 @@ class _SelectedSeriesRoute extends State<SelectedSeriesRoute>
   _scaffold() {
     return Scaffold(
       appBar: AppBar(
-        leading: new IconButton(
-          icon: Icon(Icons.arrow_back, color: whiteColor),
-          onPressed: () => Navigator.pop(context),
+        title: Text(
+          _makeTitle(_selectedSeries.title),
         ),
-        title: Text(_makeTitle(_selectedSeries.title),
-            style: TextStyle(color: whiteColor)),
-        backgroundColor: primaryColor,
       ),
-      body: _items.length > 0
-          ? TabBarView(
-              controller: _tabController,
-              children: <Widget>[
-                _listView(),
-                Padding(
-                  padding: const EdgeInsets.only(top: 30.0, bottom: 30.0),
-                  child: new Swiper(
-                    viewportFraction: 0.8,
-                    scale: 0.9,
-                    itemBuilder: (BuildContext context, int index) {
-                      return _CardTile(_items[index].filePath);
-                    },
-                    itemCount: _items.length,
-                  ),
-                )
-              ],
-            )
-          : _listView(),
-      bottomNavigationBar: _items.length > 0
-          ? new TabBar(
-              controller: _tabController,
-              tabs: [
-                Tab(
-                  text: "Detials",
-                ),
-                _items.length > 0
-                    ? Tab(
-                        text: "Gallery",
-                      )
-                    : null,
-              ],
-              labelColor: secondaryColor,
-              unselectedLabelColor: Colors.black,
-            )
-          : null,
+      body: _items.length > 0 ? _tabBarView() : _listView(),
+      bottomNavigationBar: _items.length > 0 ? _bottomBar() : null,
     );
   }
 
-  _showImage(image) {}
+  Widget _tabBarView() {
+    return TabBarView(
+      controller: _tabController,
+      children: <Widget>[
+        _listView(),
+        _galleryView(),
+      ],
+    );
+  }
+
+  Widget _bottomBar() {
+    return TabBar(
+      controller: _tabController,
+      tabs: [
+        Tab(
+          text: "Detials",
+        ),
+        Tab(
+          text: "Gallery",
+        ),
+      ],
+      labelColor: secondaryColor,
+      unselectedLabelColor: Colors.black,
+    );
+  }
+
+  Widget _galleryView() {
+    return GridView.count(
+      crossAxisCount: 2,
+      children: List.generate(_items.length, (index) {
+        return Container(
+          margin: EdgeInsets.all(10.0),
+          child: _CardTile(_items[index].filePath, _items[index].captureMode),
+        );
+      }),
+    );
+  }
 }

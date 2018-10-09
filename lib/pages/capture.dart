@@ -10,6 +10,7 @@ import '../models/CaptureModel.dart';
 import '../models/Category.dart';
 import '../models/Series.dart';
 import '../utils/ui.dart';
+import '../utils/image_thumbnail.dart';
 
 List<Choice> choices;
 
@@ -262,8 +263,6 @@ class _CaptureRoute extends State<CaptureRoute> with TickerProviderStateMixin {
         '${Application.appDir}/Categories/${_category.name}/$uuid/Pictures';
     await Directory(dirPath).create(recursive: true);
     final String filePath = '$dirPath/${timestamp()}.jpg';
-
-    print("$filePath");
 
     try {
       await controller.takePicture(filePath);
