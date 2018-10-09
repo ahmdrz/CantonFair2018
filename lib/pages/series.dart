@@ -176,6 +176,20 @@ class _SeriesRoute extends State<SeriesRoute>
           label: 'Created At',
           labelStyle: TextStyle(fontWeight: FontWeight.w500),
         ),
+        SpeedDialChild(
+          child: Icon(Icons.cached, color: Colors.white),
+          backgroundColor: primaryColor,
+          onTap: () {
+            if (sortInv == 'DESC') {
+              sortInv = 'ASC';
+            } else {
+              sortInv = 'DESC';
+            }
+            _sortBy(sortOrder);
+          },
+          label: 'Reverse Order',
+          labelStyle: TextStyle(fontWeight: FontWeight.w500),
+        ),
       ],
     );
   }
@@ -255,11 +269,7 @@ class _SeriesRoute extends State<SeriesRoute>
 
     handler.then((result) {
       setState(() {
-        sortOrder = order;
-        if (inv == 'DESC')
-          sortInv = 'ASC';
-        else
-          sortInv = 'DESC';
+        sortOrder = order;      
         list = result;
         _ready = true;
       });

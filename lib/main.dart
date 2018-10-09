@@ -99,6 +99,7 @@ class CantonFair extends StatelessWidget {
       initialRoute: '/',
       theme: ThemeData(
         primarySwatch: primaryColor,
+        fontFamily: 'Raleway',
       ),
       onGenerateRoute: Application.router.generator,
     );

@@ -1,12 +1,13 @@
 import 'dart:async';
 import 'dart:io';
 
+import 'package:audio_recorder/audio_recorder.dart';
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 
 import '../config/application.dart';
-import '../models/Category.dart';
 import '../models/CaptureModel.dart';
+import '../models/Category.dart';
 import '../models/Series.dart';
 import '../utils/ui.dart';
 
@@ -81,6 +82,34 @@ class _CaptureRoute extends State<CaptureRoute> with TickerProviderStateMixin {
     super.initState();
   }
 
+  void onAudioRecordButtonPressed() {
+    setState(() {
+      _loading = true;
+    });
+    startAudioRecord().then((String filePath) {
+      _state = Options.audioRecording;
+      if (mounted) {
+        setState(() {
+          _loading = false;
+        });
+        if (filePath != null) {
+          CaptureModel audio = CaptureModel(
+              filePath: filePath,
+              seriesUUID: uuid,
+              captureMode: CaptureMode.audio);
+          CaptureModel.updateItem(audio);
+        }
+      }
+    });
+  }
+
+  void onAudioStopButtonPressed() {
+    stopAudioRecording().then((_) {
+      _state = Options.audio;
+      if (mounted) setState(() {});
+    });
+  }
+
   Future onNewCameraSelected(CameraDescription cameraDescription) async {
     if (controller != null) {
       await controller.dispose();
@@ -103,13 +132,6 @@ class _CaptureRoute extends State<CaptureRoute> with TickerProviderStateMixin {
     if (mounted) {
       setState(() {});
     }
-  }
-
-  void onStopButtonPressed() {
-    stopVideoRecording().then((_) {
-      _state = Options.video;
-      if (mounted) setState(() {});
-    });
   }
 
   void onTakePictureButtonPressed() {
@@ -153,6 +175,29 @@ class _CaptureRoute extends State<CaptureRoute> with TickerProviderStateMixin {
     });
   }
 
+  void onVideoStopButtonPressed() {
+    stopVideoRecording().then((_) {
+      _state = Options.video;
+      if (mounted) setState(() {});
+    });
+  }
+
+  Future<String> startAudioRecord() async {
+    final String dirPath =
+        '${Application.appDir}/Categories/${_category.name}/$uuid/Audios';
+    await Directory(dirPath).create(recursive: true);
+    final String filePath = '$dirPath/${timestamp()}.aac';
+
+    try {
+      await AudioRecorder.start(
+          path: filePath, audioOutputFormat: AudioOutputFormat.AAC);
+    } on Exception catch (e) {
+      showInSnackBar(e.toString());
+      return null;
+    }
+    return filePath;
+  }
+
   void showInSnackBar(String message) {
     _scaffoldKey.currentState.showSnackBar(
       SnackBar(
@@ -184,6 +229,15 @@ class _CaptureRoute extends State<CaptureRoute> with TickerProviderStateMixin {
       return null;
     }
     return filePath;
+  }
+
+  Future<void> stopAudioRecording() async {
+    try {
+      await AudioRecorder.stop();
+    } on Exception catch (e) {
+      showInSnackBar(e.toString());
+      return null;
+    }
   }
 
   Future<void> stopVideoRecording() async {
@@ -278,7 +332,11 @@ class _CaptureRoute extends State<CaptureRoute> with TickerProviderStateMixin {
         _animationController.repeat();
         onVideoRecordButtonPressed();
       } else if (_state == Options.videoRecording) {
-        onStopButtonPressed();
+        onVideoStopButtonPressed();
+      } else if (_state == Options.audio) {
+        onAudioRecordButtonPressed();
+      } else if (_state == Options.audioRecording) {
+        onAudioStopButtonPressed();
       }
     };
   }
@@ -291,6 +349,15 @@ class _CaptureRoute extends State<CaptureRoute> with TickerProviderStateMixin {
     }
 
     return condition ? null : changeState;
+  }
+
+  Widget _floatingButton() {
+    return FloatingActionButton(
+      backgroundColor: secondaryColor,
+      foregroundColor: whiteColor,
+      child: _floatingButtonChild(),
+      onPressed: _captureButtonHandler(),
+    );
   }
 
   Widget _floatingButtonChild() {
@@ -323,15 +390,6 @@ class _CaptureRoute extends State<CaptureRoute> with TickerProviderStateMixin {
       );
     }
     return Icon(Icons.archive);
-  }
-
-  Widget _floatingButton() {
-    return FloatingActionButton(
-      backgroundColor: secondaryColor,
-      foregroundColor: whiteColor,
-      child: _floatingButtonChild(),
-      onPressed: _captureButtonHandler(),
-    );
   }
 
   Widget _makeAppBar() {
