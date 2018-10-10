@@ -28,6 +28,7 @@ dependencies:
   audio_recorder: "0.0.6"
   image: any
   video_player: "0.6.5"
+  flutter_swiper: any
 
 dev_dependencies:
   flutter_test:

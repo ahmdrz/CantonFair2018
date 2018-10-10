@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
 import '../utils/card.dart';
+import '../pages/item-view.dart';
 import '../models/CaptureModel.dart';
 import '../models/Category.dart';
 import '../models/Series.dart';
@@ -18,7 +19,8 @@ class SelectedSeriesRoute extends StatefulWidget {
 class _CardTile extends StatelessWidget {
   final gridImage;
   final typeOfItem;
-  const _CardTile(this.gridImage, this.typeOfItem);
+  final tag;
+  const _CardTile(this.tag, this.gridImage, this.typeOfItem);
 
   Widget _childWidget(BuildContext context) {
     if (typeOfItem == CaptureMode.picture) {
@@ -39,15 +41,10 @@ class _CardTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: () {
-        print("$gridImage");
-      },
-      child: Container(
-        child: _childWidget(context),
-        decoration:
-            BoxDecoration(border: Border.all(width: 1.0, color: primaryColor)),
-      ),
+    return Container(
+      child: _childWidget(context),
+      decoration:
+          BoxDecoration(border: Border.all(width: 1.0, color: primaryColor)),
     );
   }
 }
@@ -120,9 +117,23 @@ class _SelectedSeriesRoute extends State<SelectedSeriesRoute>
       crossAxisCount: 2,
       children: List.generate(_items.length, (index) {
         return GridTile(
-          child: _CardTile(
-              _items[index].filePath, _items[index].captureMode),
-        );
+            child: GestureDetector(
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (_) {
+                  return ItemViewRoute(_items, index, _items[index].uuid);
+                },
+              ),
+            );
+          },
+          child: Hero(
+            child: _CardTile(_items[index].uuid, _items[index].filePath,
+                _items[index].captureMode),
+            tag: _items[index].uuid,
+          ),
+        ));
       }),
     );
   }

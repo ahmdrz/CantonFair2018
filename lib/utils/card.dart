@@ -3,7 +3,6 @@ import 'package:flutter/painting.dart';
 import 'package:video_player/video_player.dart';
 import 'package:flutter/material.dart';
 
-import '../utils/cache.dart';
 import '../models/CaptureModel.dart';
 import '../utils/ui.dart';
 

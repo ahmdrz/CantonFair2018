@@ -55,6 +55,16 @@ class CaptureModel {
     return items;
   }
 
+  static Future<CaptureModel> getByUUID(uuid) async {
+    var result = await db.rawQuery(
+        'SELECT * FROM $tableName WHERE $dbUUID = "$uuid";');
+    List<CaptureModel> items = [];
+    for (Map<String, dynamic> item in result) {
+      items.add(new CaptureModel.fromMap(item));
+    }
+    return items.length > 0 ? items[0] : null;
+  }
+
   static Future<List<CaptureModel>> getLatestItems(int limit,
       {int page = 0}) async {
     var result = await db.rawQuery(
