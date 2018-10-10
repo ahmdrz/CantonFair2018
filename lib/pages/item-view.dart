@@ -17,8 +17,9 @@ class ItemViewRoute extends StatefulWidget {
 
 class _ItemViewRouteRoute extends State<ItemViewRoute> {
   final List<CaptureModel> list;
-  final int index;
-  final String tag;
+  int index;
+  String tag;
+  SwiperController controller = new SwiperController();
 
   _ItemViewRouteRoute({this.tag, this.list, this.index});
 
@@ -26,9 +27,16 @@ class _ItemViewRouteRoute extends State<ItemViewRoute> {
   Widget build(BuildContext context) {
     return Hero(
       tag: tag,
-      child: Scaffold(        
+      child: Scaffold(
         body: Container(
           child: Swiper(
+            onIndexChanged: (current) {
+              setState(() {
+                tag = list[current].uuid;
+                index = current;
+              });
+            },
+            controller: controller,
             pagination: new SwiperPagination(
               margin: new EdgeInsets.all(5.0),
             ),
