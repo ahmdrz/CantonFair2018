@@ -10,7 +10,6 @@ import '../models/CaptureModel.dart';
 import '../models/Category.dart';
 import '../models/Series.dart';
 import '../utils/ui.dart';
-import '../utils/image_thumbnail.dart';
 
 List<Choice> choices;
 

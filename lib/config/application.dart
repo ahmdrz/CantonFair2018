@@ -15,14 +15,14 @@ class Application {
   static Database db;
   static bool _dbIsOpened = false;
   static String _databaseName = 'cantonfair.db';
-  static Map<String, dynamic> cache;
+  static Map<String, dynamic> cache;  
   static String databasePath = "";
   static String appDir;
 
   static String timestamp() => DateTime.now().millisecondsSinceEpoch.toString();
 
   static Future backupDatabase() async {
-    await closeDatabase();    
+    await closeDatabase();
     File f = new File(join(databasePath, _databaseName));
     String newPath = join(databasePath, '${timestamp()}.db');
     print("Coping to $newPath");

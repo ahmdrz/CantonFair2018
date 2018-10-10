@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
-// import 'package:flutter_swiper/flutter_swiper.dart';
-
-import '../models/Category.dart';
+import '../utils/card.dart';
 import '../models/CaptureModel.dart';
+import '../models/Category.dart';
 import '../models/Series.dart';
 import '../utils/ui.dart';
 
@@ -21,62 +20,33 @@ class _CardTile extends StatelessWidget {
   final typeOfItem;
   const _CardTile(this.gridImage, this.typeOfItem);
 
-  IconData _getIcon(type) {
-    switch (type) {
-      case CaptureMode.audio:
-        return Icons.audiotrack;
-      case CaptureMode.video:
-        return Icons.videocam;
-      case CaptureMode.picture:
-        return Icons.photo_camera;
-      default:
-        return Icons.perm_media;
-    }
-  }
-
-  String _getImage(type) {
-    switch (type) {
-      case CaptureMode.picture:
-        return gridImage;
-      default:
-        return "assets/purple-materials.jpg";
+  Widget _childWidget(BuildContext context) {
+    if (typeOfItem == CaptureMode.picture) {
+      return ImageAppCard(
+        filepath: gridImage,
+      );
+    } else if (typeOfItem == CaptureMode.video) {
+      return VideoAppCard(
+        filepath: gridImage,
+        loadingImage: "assets/purple-materials.jpg",
+      );
+    } else {
+      return AudioAppCard(
+        filepath: "assets/purple-materials.jpg",
+      );
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    double width = MediaQuery.of(context).size.width;
-
     return GestureDetector(
       onTap: () {
         print("$gridImage");
       },
-      child: new Container(
-        child: Container(
-          color: primaryColor.withOpacity(0.3),
-          child: Center(
-            child: Icon(
-              _getIcon(typeOfItem),
-              color: Colors.white.withOpacity(0.75),
-              size: width * 0.2,
-            ),
-          ),
-        ),
-        decoration: new BoxDecoration(
-          color: primaryColor,
-          boxShadow: [
-            new BoxShadow(
-              offset: Offset(0.0, 4.0),
-              color: Colors.black.withOpacity(0.25),
-              blurRadius: 4.0,
-            ),
-          ],
-          image: new DecorationImage(
-            image: new AssetImage(_getImage(typeOfItem)),
-            fit: BoxFit.cover,
-          ),
-          borderRadius: new BorderRadius.all(const Radius.circular(5.0)),
-        ),
+      child: Container(
+        child: _childWidget(context),
+        decoration:
+            BoxDecoration(border: Border.all(width: 1.0, color: primaryColor)),
       ),
     );
   }
@@ -90,6 +60,12 @@ class _SelectedSeriesRoute extends State<SelectedSeriesRoute>
   Series _selectedSeries = Series();
   Category _selectedCategory = Category(name: "unknown");
   List<CaptureModel> _items = List<CaptureModel>();
+
+  @override
+  void dispose() {
+    super.dispose();
+    _tabController.dispose();
+  }
 
   TabController _tabController;
 
@@ -114,12 +90,6 @@ class _SelectedSeriesRoute extends State<SelectedSeriesRoute>
     return _loading ? _loadingContainer() : _scaffold();
   }
 
-  @override
-  void dispose() {
-    _tabController.dispose();
-    super.dispose();
-  }
-
   heading(text) {
     return Text(text, style: TextStyle(fontSize: 18.0));
   }
@@ -129,20 +99,32 @@ class _SelectedSeriesRoute extends State<SelectedSeriesRoute>
     super.initState();
   }
 
-  _loadingContainer() {
-    return Container(
-      color: primaryColor,
-      child: Center(
-        child: CircularProgressIndicator(
-          valueColor: new AlwaysStoppedAnimation<Color>(whiteColor),
+  Widget _bottomBar() {
+    return TabBar(
+      controller: _tabController,
+      tabs: [
+        Tab(
+          text: "Detials",
         ),
-      ),
+        Tab(
+          text: "Gallery",
+        ),
+      ],
+      labelColor: secondaryColor,
+      unselectedLabelColor: Colors.black,
     );
   }
 
-  String _makeTitle(String input) {
-    String title = input[0].toUpperCase() + input.substring(1);
-    return title;
+  Widget _galleryView() {
+    return GridView.count(
+      crossAxisCount: 2,
+      children: List.generate(_items.length, (index) {
+        return GridTile(
+          child: _CardTile(
+              _items[index].filePath, _items[index].captureMode),
+        );
+      }),
+    );
   }
 
   Widget _listView() {
@@ -208,11 +190,28 @@ class _SelectedSeriesRoute extends State<SelectedSeriesRoute>
           leading: Icon(Icons.camera),
           onTap: () {},
           onLongPress: () {
-            Navigator.popAndPushNamed(context, "/camera/${_selectedSeries.uuid}");
+            Navigator.popAndPushNamed(
+                context, "/camera/${_selectedSeries.uuid}");
           },
         ),
       ],
     );
+  }
+
+  _loadingContainer() {
+    return Container(
+      color: primaryColor,
+      child: Center(
+        child: CircularProgressIndicator(
+          valueColor: new AlwaysStoppedAnimation<Color>(whiteColor),
+        ),
+      ),
+    );
+  }
+
+  String _makeTitle(String input) {
+    String title = input[0].toUpperCase() + input.substring(1);
+    return title;
   }
 
   _scaffold() {
@@ -234,34 +233,6 @@ class _SelectedSeriesRoute extends State<SelectedSeriesRoute>
         _listView(),
         _galleryView(),
       ],
-    );
-  }
-
-  Widget _bottomBar() {
-    return TabBar(
-      controller: _tabController,
-      tabs: [
-        Tab(
-          text: "Detials",
-        ),
-        Tab(
-          text: "Gallery",
-        ),
-      ],
-      labelColor: secondaryColor,
-      unselectedLabelColor: Colors.black,
-    );
-  }
-
-  Widget _galleryView() {
-    return GridView.count(
-      crossAxisCount: 2,
-      children: List.generate(_items.length, (index) {
-        return Container(
-          margin: EdgeInsets.all(10.0),
-          child: _CardTile(_items[index].filePath, _items[index].captureMode),
-        );
-      }),
     );
   }
 }

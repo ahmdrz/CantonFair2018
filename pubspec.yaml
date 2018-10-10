@@ -27,6 +27,7 @@ dependencies:
   flutter_speed_dial: any  
   audio_recorder: "0.0.6"
   image: any
+  video_player: "0.6.5"
 
 dev_dependencies:
   flutter_test:

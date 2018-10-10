@@ -104,7 +104,7 @@ class _SplashScreenRoute extends State<SplashScreenRoute> {
   }
 
   _handleStart() {
-    Application.cache = new Map<String, dynamic>();
+    Application.cache = new Map<String, dynamic>();    
 
     try {
       availableCameras().then((cameras) {
