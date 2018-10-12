@@ -34,13 +34,11 @@ class Choice {
 
 enum Options { video, videoRecording, photo, audio, audioRecording }
 
-class _CaptureRoute extends State<CaptureRoute> with TickerProviderStateMixin {
+class _CaptureRoute extends State<CaptureRoute> {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
-  AnimationController _animationController;
-  Animation _animation;
-
   CameraController controller;
+  CaptureModel model;
 
   var _state = Options.photo;
   bool _initializing = false;
@@ -66,18 +64,6 @@ class _CaptureRoute extends State<CaptureRoute> with TickerProviderStateMixin {
 
   @override
   void initState() {
-    _animationController = AnimationController(
-      vsync: this,
-      duration: Duration(seconds: 5),
-    );
-
-    _animation = Tween(begin: 0.0, end: 500.0).animate(
-      CurvedAnimation(
-        parent: _animationController,
-        curve: Curves.fastOutSlowIn,
-      ),
-    );
-
     _prepare();
     super.initState();
   }
@@ -93,11 +79,10 @@ class _CaptureRoute extends State<CaptureRoute> with TickerProviderStateMixin {
           _loading = false;
         });
         if (filePath != null) {
-          CaptureModel audio = CaptureModel(
+          model = CaptureModel(
               filePath: filePath,
               seriesUUID: uuid,
               captureMode: CaptureMode.audio);
-          CaptureModel.updateItem(audio);
         }
       }
     });
@@ -106,6 +91,7 @@ class _CaptureRoute extends State<CaptureRoute> with TickerProviderStateMixin {
   void onAudioStopButtonPressed() {
     stopAudioRecording().then((_) {
       _state = Options.audio;
+      CaptureModel.updateItem(model);
       if (mounted) setState(() {});
     });
   }
@@ -135,42 +121,35 @@ class _CaptureRoute extends State<CaptureRoute> with TickerProviderStateMixin {
   }
 
   void onTakePictureButtonPressed() {
-    setState(() {
-      _loading = true;
-    });
+    _loading = true;
     takePicture().then((String filePath) {
       if (mounted) {
-        setState(() {
-          _loading = false;
-        });
+        _loading = false;
         if (filePath != null) {
-          CaptureModel image = CaptureModel(
+          model = CaptureModel(
               filePath: filePath,
               seriesUUID: uuid,
               captureMode: CaptureMode.picture);
-          CaptureModel.updateItem(image);
+          CaptureModel.updateItem(model);
         }
+        setState(() {});
       }
     });
   }
 
   void onVideoRecordButtonPressed() {
-    setState(() {
-      _loading = true;
-    });
+    _loading = true;
     startVideoRecording().then((String filePath) {
-      _state = Options.videoRecording;
       if (mounted) {
-        setState(() {
-          _loading = false;
-        });
+        _state = Options.videoRecording;
+        _loading = false;
         if (filePath != null) {
-          CaptureModel video = CaptureModel(
+          model = CaptureModel(
               filePath: filePath,
               seriesUUID: uuid,
               captureMode: CaptureMode.video);
-          CaptureModel.updateItem(video);
         }
+        setState(() {});
       }
     });
   }
@@ -178,6 +157,7 @@ class _CaptureRoute extends State<CaptureRoute> with TickerProviderStateMixin {
   void onVideoStopButtonPressed() {
     stopVideoRecording().then((_) {
       _state = Options.video;
+      CaptureModel.updateItem(model);
       if (mounted) setState(() {});
     });
   }
@@ -327,7 +307,6 @@ class _CaptureRoute extends State<CaptureRoute> with TickerProviderStateMixin {
       if (_state == Options.photo) {
         onTakePictureButtonPressed();
       } else if (_state == Options.video) {
-        _animationController.repeat();
         onVideoRecordButtonPressed();
       } else if (_state == Options.videoRecording) {
         onVideoStopButtonPressed();
@@ -368,23 +347,10 @@ class _CaptureRoute extends State<CaptureRoute> with TickerProviderStateMixin {
       );
     }
     if (_state == Options.audioRecording || _state == Options.videoRecording) {
-      return AnimatedBuilder(
-        animation: _animationController,
-        builder: (BuildContext context, Widget child) {
-          int value = (_animation.value as double).toInt();
-          if (value > 250) {
-            value = 500 - value;
-          }
-          double size = value / 5.0;
-          if (size < 30.0) {
-            size = 30.0;
-          }
-          return Icon(
-            Icons.stop,
-            size: size,
-            color: Colors.black.withRed(value),
-          );
-        },
+      return Icon(
+        Icons.stop,
+        size: 50.0,
+        color: Colors.black.withRed(50),
       );
     }
     return Icon(Icons.archive);
