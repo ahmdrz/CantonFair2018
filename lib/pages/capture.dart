@@ -64,8 +64,16 @@ class _CaptureRoute extends State<CaptureRoute> {
 
   @override
   void initState() {
+    print("init state");
     _prepare();
     super.initState();
+  }
+
+  @override
+  void dispose() {
+    print("capture dispose");
+    super.dispose();
+    this.controller?.dispose();
   }
 
   void onAudioRecordButtonPressed() {
@@ -131,7 +139,7 @@ class _CaptureRoute extends State<CaptureRoute> {
               seriesUUID: uuid,
               captureMode: CaptureMode.picture);
           CaptureModel.updateItem(model);
-        }
+        }        
         setState(() {});
       }
     });

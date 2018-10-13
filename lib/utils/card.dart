@@ -78,8 +78,7 @@ class ImageAppCard extends StatefulWidget {
   ImageAppCard({this.filepath});
 
   @override
-  _ImageAppCardState createState() =>
-      _ImageAppCardState(filepath);
+  _ImageAppCardState createState() => _ImageAppCardState(filepath);
 }
 
 class _ImageAppCardState extends State<ImageAppCard> {
