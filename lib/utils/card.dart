@@ -1,6 +1,4 @@
-import 'dart:io';
 import 'package:flutter/painting.dart';
-import 'package:video_player/video_player.dart';
 import 'package:flutter/material.dart';
 
 import '../models/CaptureModel.dart';
@@ -123,57 +121,18 @@ class _VideoAppCardState extends State<VideoAppCard> {
     this.loadingImage = loadingImage;
   }
 
-  void dispose() {
-    print("video dispose !");
-    super.dispose();
-  }
-
-  VideoPlayerController _controller;
-  bool _isPlaying = false;
-
   @override
-  void initState() {
-    super.initState();
-    _controller = VideoPlayerController.file(
-      File(filepath),
-    )
-      ..addListener(() {
-        final bool isPlaying = _controller.value.isPlaying;
-        if (isPlaying != _isPlaying) {
-          setState(() {
-            _isPlaying = isPlaying;
-          });
-        }
-      })
-      ..initialize().then((_) {
-        setState(() {});
-      });
-  }
-
-  Widget _loading() {
+  Widget build(BuildContext context) {
+    print("Building video card ...");
     return Container(
+      child: _overlay(context, CaptureMode.video),
       decoration: new BoxDecoration(
+        color: Colors.black.withOpacity(0.5),
         image: new DecorationImage(
           image: new AssetImage(loadingImage),
           fit: BoxFit.cover,
         ),
       ),
     );
-  }
-
-  Widget _player() {
-    // FUCCKK THISS SHITT !
-    // flutter has long way to become a perfect mobile framework
-    // cause of texture does not support border radius
-    return Container(
-      color: Colors.black.withOpacity(0.5),
-      child: VideoPlayer(_controller),
-    );
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    print("Building video card ...");
-    return _controller.value.initialized ? _player() : _loading();
   }
 }

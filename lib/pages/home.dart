@@ -204,6 +204,9 @@ class _HomeRoute extends State<HomeRoute> {
                   ),
                 ),
                 ListTile(
+                  onLongPress: () {
+                    Application.router.navigateTo(context, '/categories');
+                  },
                   title: Text("Category"),
                   leading: Icon(Icons.list),
                   subtitle:

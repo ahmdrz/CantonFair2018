@@ -8,8 +8,15 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "0.32.4"
+  android_intent:
+    dependency: "direct main"
+    description:
+      name: android_intent
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "0.2.1"
   archive:
-    dependency: transitive
+    dependency: "direct main"
     description:
       name: archive
       url: "https://pub.dartlang.org"
@@ -36,6 +43,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "0.0.6"
+  audioplayers:
+    dependency: "direct main"
+    description:
+      name: audioplayers
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "0.7.8"
   boolean_selector:
     dependency: transitive
     description:
@@ -186,6 +200,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "2.0.4"
+  image_picker:
+    dependency: "direct main"
+    description:
+      name: image_picker
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "0.4.10"
   intl:
     dependency: "direct main"
     description:
@@ -298,6 +319,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "2.0.2"
+  platform:
+    dependency: transitive
+    description:
+      name: platform
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "2.2.0"
   plugin:
     dependency: transitive
     description:
@@ -471,6 +499,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "2.0.8"
+  video_launcher:
+    dependency: "direct main"
+    description:
+      path: "packages/flutter_video_launcher"
+      relative: true
+    source: path
+    version: "0.3.0"
   video_player:
     dependency: "direct main"
     description:
@@ -514,5 +549,5 @@ packages:
     source: hosted
     version: "2.1.15"
 sdks:
-  dart: ">=2.0.0 <3.0.0"
+  dart: ">=2.0.0 <2.2.0"
   flutter: ">=0.2.5 <2.0.0"

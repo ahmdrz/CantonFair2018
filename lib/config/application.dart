@@ -9,30 +9,43 @@ import 'package:sqflite/sqflite.dart';
 import '../models/Category.dart';
 import '../models/CaptureModel.dart';
 import '../models/Series.dart';
+import '../models/Settings.dart';
 
 class Application {
   static Router router;
   static Database db;
   static bool _dbIsOpened = false;
   static String _databaseName = 'cantonfair.db';
-  static Map<String, dynamic> cache;  
+  static Map<String, dynamic> cache;
   static String databasePath = "";
   static String appDir;
+  static String mainDir;
 
   static String timestamp() => DateTime.now().millisecondsSinceEpoch.toString();
 
   static Future backupDatabase() async {
     await closeDatabase();
     File f = new File(join(databasePath, _databaseName));
-    String newPath = join(databasePath, '${timestamp()}.db');
+    var backup = join(appDir, "Backup");
+    String newPath = join(backup, '${timestamp()}.db');
+    await Directory(backup).create(recursive: true);
     print("Coping to $newPath");
     await f.copy(newPath);
     await openDB();
   }
 
-  static Future initDatabase() async {
-    Directory extPath = await getExternalStorageDirectory();
-    appDir = join(extPath.path, "CantonFair");
+  static Future forceDelete() async {
+    await closeDatabase();
+    File f = new File(join(databasePath, _databaseName));    
+    if (await f.exists()) await f.delete();
+    await openDB();
+  }
+
+  static Future initDatabase() async {        
+    Directory extDir = await getExternalStorageDirectory(); 
+    mainDir = extDir.path;
+    appDir = join(mainDir, "CantonFair");
+    await Directory(appDir).create(recursive: true);
     databasePath = join(appDir, "Database");
     await openDB();
   }
@@ -47,15 +60,9 @@ class Application {
         print("Database opened !");
         _dbIsOpened = true;
 
-        // only on development
-        // print("Droping ${Category.tableName} ...");
-        // await db.execute("DROP TABLE ${Category.tableName};");
-
-        // print("Droping ${Series.tableName} ...");
-        // await db.execute("DROP TABLE ${Series.tableName};");
-
-        // print("Droping ${CaptureModel.tableName} ...");
-        // await db.execute("DROP TABLE ${CaptureModel.tableName};");
+        print("Creating ${Settings.tableName} ...");
+        await db.execute(Settings.dbOnCreate);
+        Settings.db = db;
 
         print("Creating ${CaptureModel.tableName} ...");
         await db.execute(CaptureModel.dbOnCreate);
@@ -71,11 +78,6 @@ class Application {
       },
       onCreate: (Database db, int version) async {
         // only on production
-        print("Creating ${Category.tableName} ...");
-        await db.execute(Category.dbOnCreate);
-
-        print("Creating ${Series.tableName} ...");
-        await db.execute(Series.dbOnCreate);
       },
     );
   }

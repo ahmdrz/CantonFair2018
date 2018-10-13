@@ -154,6 +154,11 @@ class _SelectedSeriesRoute extends State<SelectedSeriesRoute>
           leading: Icon(Icons.description),
         ),
         ListTile(
+          title: Text("UUID:"),
+          subtitle: Text(_selectedSeries.uuid),
+          leading: Icon(Icons.code),
+        ),
+        ListTile(
           title: Text("Created at:"),
           subtitle: Text(formatter.format(_selectedSeries.createdAt)),
           leading: Icon(Icons.calendar_today),
@@ -231,6 +236,17 @@ class _SelectedSeriesRoute extends State<SelectedSeriesRoute>
         title: Text(
           _makeTitle(_selectedSeries.title),
         ),
+        // actions: <Widget>[
+        //   FlatButton(
+        //     child: Text(
+        //       "Open as",
+        //       style: TextStyle(
+        //         color: whiteColor,
+        //       ),
+        //     ),
+        //     onPressed: _openIntent,
+        //   )
+        // ],
       ),
       body: _items.length > 0 ? _tabBarView() : _listView(),
       bottomNavigationBar: _items.length > 0 ? _bottomBar() : null,

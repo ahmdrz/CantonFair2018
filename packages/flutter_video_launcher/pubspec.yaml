@@ -1,0 +1,17 @@
+name: video_launcher
+description: Fullscreen video launcher plugin
+version: 0.3.0
+author: Erick Ghaumez <erick@rxla.bz>
+homepage: https://github.com/rxlabz/flutter_video_launcher
+
+flutter:
+  plugin:
+    androidPackage: bz.rxla.video_launcher
+    pluginClass: VideoLauncherPlugin
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+environment:
+    sdk: ">=2.0.0 <2.2.0"

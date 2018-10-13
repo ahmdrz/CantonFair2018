@@ -77,6 +77,7 @@ class Series {
   static Future<Category> getCategoryOfSeriesUUID(uuid,
       {inv: 'desc', order: 'created_at'}) async {
     var series = await getSelectedSeriesByUUID(uuid);
+    if (series == null) return null;
     var result = await db.rawQuery(
         'SELECT * FROM ${Category.tableName} WHERE ${Category.dbUUID} = "${series.categoryUUID}" ORDER BY "$order $inv";');
     List<Category> categories = [];

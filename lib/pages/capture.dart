@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:audio_recorder/audio_recorder.dart';
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 
 import '../config/application.dart';
 import '../models/CaptureModel.dart';
@@ -32,13 +33,22 @@ class Choice {
   const Choice({this.title, this.icon, this.camera});
 }
 
-enum Options { video, videoRecording, photo, audio, audioRecording }
+enum Options {
+  video,
+  videoRecording,
+  photo,
+  audio,
+  audioRecording,
+  hqVideo,
+  hqPhoto,
+}
 
 class _CaptureRoute extends State<CaptureRoute> {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
   CameraController controller;
   CaptureModel model;
+  String openTime;
 
   var _state = Options.photo;
   bool _initializing = false;
@@ -47,7 +57,9 @@ class _CaptureRoute extends State<CaptureRoute> {
   bool _loading = false;
 
   final String uuid;
-  _CaptureRoute({this.uuid});
+  _CaptureRoute({this.uuid}) {
+    openTime = timestamp();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -63,29 +75,24 @@ class _CaptureRoute extends State<CaptureRoute> {
   }
 
   @override
-  void initState() {
-    print("init state");
-    _prepare();
-    super.initState();
-  }
-
-  @override
   void dispose() {
     print("capture dispose");
     super.dispose();
     this.controller?.dispose();
   }
 
+  @override
+  void initState() {
+    _prepare();
+    super.initState();
+  }
+
   void onAudioRecordButtonPressed() {
-    setState(() {
-      _loading = true;
-    });
+    setState(() => _loading = true);
     startAudioRecord().then((String filePath) {
       _state = Options.audioRecording;
       if (mounted) {
-        setState(() {
-          _loading = false;
-        });
+        setState(() => _loading = false);
         if (filePath != null) {
           model = CaptureModel(
               filePath: filePath,
@@ -128,29 +135,90 @@ class _CaptureRoute extends State<CaptureRoute> {
     }
   }
 
-  void onTakePictureButtonPressed() {
-    _loading = true;
-    takePicture().then((String filePath) {
+  void onHQTakePhotoButtonPressed() {
+    setState(() => _loading = true);
+    hqTakePhoto().then((String filePath) {
       if (mounted) {
-        _loading = false;
+        _state = Options.hqPhoto;
+        setState(() => _loading = false);
         if (filePath != null) {
           model = CaptureModel(
               filePath: filePath,
               seriesUUID: uuid,
               captureMode: CaptureMode.picture);
           CaptureModel.updateItem(model);
-        }        
+        }
+        setState(() {});
+      }
+    });
+  }
+
+  void onHQVideoRecordButtonPressed() {
+    setState(() => _loading = true);
+    hqVideoRecord().then((String filePath) {
+      if (mounted) {
+        _state = Options.hqVideo;
+        setState(() => _loading = false);
+        if (filePath != null) {
+          model = CaptureModel(
+              filePath: filePath,
+              seriesUUID: uuid,
+              captureMode: CaptureMode.video);
+          CaptureModel.updateItem(model);
+        }
+        setState(() {});
+      }
+    });
+  }
+
+  Future<String> hqTakePhoto() async {
+    var image = await ImagePicker.pickImage(source: ImageSource.camera);
+    if (image == null) return null;
+    final String dirPath =
+        '${Application.appDir}/Categories/${_category.name}/${openTime}_$uuid/Photos';
+    await Directory(dirPath).create(recursive: true);
+    final String filePath = '$dirPath/${timestamp()}.jpg';
+    await image.copy(filePath);
+    await image.delete();
+    return filePath;
+  }
+
+  Future<String> hqVideoRecord() async {
+    var video = await ImagePicker.pickVideo(source: ImageSource.camera);
+    if (video == null) return null;
+    final String dirPath =
+        '${Application.appDir}/Categories/${_category.name}/${openTime}_$uuid/Movies';
+    await Directory(dirPath).create(recursive: true);
+    final String filePath = '$dirPath/${timestamp()}.mp4';
+    await video.copy(filePath);
+    await video.delete();
+    return filePath;
+  }
+
+  void onTakePictureButtonPressed() {
+    setState(() => _loading = true);
+    takePicture().then((String filePath) {
+      if (mounted) {
+        _state = Options.photo;
+        setState(() => _loading = false);
+        if (filePath != null) {
+          model = CaptureModel(
+              filePath: filePath,
+              seriesUUID: uuid,
+              captureMode: CaptureMode.picture);
+          CaptureModel.updateItem(model);
+        }
         setState(() {});
       }
     });
   }
 
   void onVideoRecordButtonPressed() {
-    _loading = true;
+    setState(() => _loading = true);
     startVideoRecording().then((String filePath) {
       if (mounted) {
         _state = Options.videoRecording;
-        _loading = false;
+        setState(() => _loading = false);
         if (filePath != null) {
           model = CaptureModel(
               filePath: filePath,
@@ -170,9 +238,20 @@ class _CaptureRoute extends State<CaptureRoute> {
     });
   }
 
+  void showInSnackBar(String message) {
+    _scaffoldKey.currentState.showSnackBar(
+      SnackBar(
+        content: Text(message),
+        action: SnackBarAction(
+            label: 'HIDE',
+            onPressed: _scaffoldKey.currentState.hideCurrentSnackBar),
+      ),
+    );
+  }
+
   Future<String> startAudioRecord() async {
     final String dirPath =
-        '${Application.appDir}/Categories/${_category.name}/$uuid/Audios';
+        '${Application.appDir}/Categories/${_category.name}/${openTime}_$uuid/Audios';
     await Directory(dirPath).create(recursive: true);
     final String filePath = '$dirPath/${timestamp()}.aac';
 
@@ -186,17 +265,6 @@ class _CaptureRoute extends State<CaptureRoute> {
     return filePath;
   }
 
-  void showInSnackBar(String message) {
-    _scaffoldKey.currentState.showSnackBar(
-      SnackBar(
-        content: Text(message),
-        action: SnackBarAction(
-            label: 'HIDE',
-            onPressed: _scaffoldKey.currentState.hideCurrentSnackBar),
-      ),
-    );
-  }
-
   Future<String> startVideoRecording() async {
     if (!controller.value.isInitialized) {
       showInSnackBar('Error: select a camera first.');
@@ -204,7 +272,7 @@ class _CaptureRoute extends State<CaptureRoute> {
     }
 
     final String dirPath =
-        '${Application.appDir}/Categories/${_category.name}/$uuid/Movies';
+        '${Application.appDir}/Categories/${_category.name}/${openTime}_$uuid/Movies';
     await Directory(dirPath).create(recursive: true);
     final String filePath = '$dirPath/${timestamp()}.mp4';
 
@@ -247,7 +315,7 @@ class _CaptureRoute extends State<CaptureRoute> {
       return null;
     }
     final String dirPath =
-        '${Application.appDir}/Categories/${_category.name}/$uuid/Pictures';
+        '${Application.appDir}/Categories/${_category.name}/${openTime}_$uuid/Pictures';
     await Directory(dirPath).create(recursive: true);
     final String filePath = '$dirPath/${timestamp()}.jpg';
 
@@ -294,6 +362,18 @@ class _CaptureRoute extends State<CaptureRoute> {
                 Options.audio,
               ),
             ),
+            IconButton(
+              color: whiteColor,
+              icon: Icon(Icons.ondemand_video),
+              onPressed:
+                  _changeIfState(_state == Options.hqVideo, Options.hqVideo),
+            ),
+            IconButton(
+              color: whiteColor,
+              icon: Icon(Icons.camera_enhance),
+              onPressed:
+                  _changeIfState(_state == Options.hqPhoto, Options.hqPhoto),
+            ),
           ],
         ),
       ),
@@ -310,7 +390,7 @@ class _CaptureRoute extends State<CaptureRoute> {
   }
 
   Function _captureButtonHandler() {
-    if (_loading) return null;
+    if (_loading || _initializing) return null;
     return () {
       if (_state == Options.photo) {
         onTakePictureButtonPressed();
@@ -322,6 +402,10 @@ class _CaptureRoute extends State<CaptureRoute> {
         onAudioRecordButtonPressed();
       } else if (_state == Options.audioRecording) {
         onAudioStopButtonPressed();
+      } else if (_state == Options.hqVideo) {
+        onHQVideoRecordButtonPressed();
+      } else if (_state == Options.hqPhoto) {
+        onHQTakePhotoButtonPressed();
       }
     };
   }
@@ -338,15 +422,17 @@ class _CaptureRoute extends State<CaptureRoute> {
 
   Widget _floatingButton() {
     return FloatingActionButton(
-      backgroundColor: secondaryColor,
-      foregroundColor: whiteColor,
+      backgroundColor:
+          (_state == Options.audioRecording || _state == Options.videoRecording)
+              ? whiteColor
+              : secondaryColor,
       child: _floatingButtonChild(),
       onPressed: _captureButtonHandler(),
     );
   }
 
   Widget _floatingButtonChild() {
-    if (_loading) {
+    if (_loading || _initializing) {
       return Padding(
         padding: EdgeInsets.all(15.0),
         child: CircularProgressIndicator(
@@ -357,8 +443,8 @@ class _CaptureRoute extends State<CaptureRoute> {
     if (_state == Options.audioRecording || _state == Options.videoRecording) {
       return Icon(
         Icons.stop,
-        size: 50.0,
-        color: Colors.black.withRed(50),
+        size: 35.0,
+        color: Colors.redAccent,
       );
     }
     return Icon(Icons.archive);
@@ -373,12 +459,16 @@ class _CaptureRoute extends State<CaptureRoute> {
   }
 
   void _prepare() async {
-    _initializing = true;
+    setState(() => _initializing = true);
+    await Future.delayed(Duration(milliseconds: 250));
     _category = await Series.getCategoryOfSeriesUUID(uuid);
+    if (_category == null) {
+      showInSnackBar("Category not found !");
+      return;
+    }
     await onNewCameraSelected(choices[0].camera);
-    await Future.delayed(Duration(milliseconds: 500));
-    _initializing = false;
-    setState(() {});
+    await Future.delayed(Duration(milliseconds: 250));
+    setState(() => _initializing = false);
   }
 
   void _showCameraException(CameraException e) {

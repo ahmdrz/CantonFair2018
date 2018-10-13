@@ -72,11 +72,16 @@ class _SplashScreenRoute extends State<SplashScreenRoute> {
   Future<bool> requestPermissions() async {
     final writeAccess = await SimplePermissions.requestPermission(
         Permission.WriteExternalStorage);
+    final readAccess = await SimplePermissions.requestPermission(
+        Permission.ReadExternalStorage);
     final cameraAccess =
         await SimplePermissions.requestPermission(Permission.Camera);
     final recordAudio =
         await SimplePermissions.requestPermission(Permission.RecordAudio);
 
+    if (readAccess != PermissionStatus.authorized) {
+      return false;
+    }
     if (writeAccess != PermissionStatus.authorized) {
       return false;
     }
@@ -93,7 +98,6 @@ class _SplashScreenRoute extends State<SplashScreenRoute> {
   @override
   void initState() {
     super.initState();
-
     requestPermissions().then((ok) {
       if (ok) {
         _handleStart();
@@ -104,7 +108,7 @@ class _SplashScreenRoute extends State<SplashScreenRoute> {
   }
 
   _handleStart() {
-    Application.cache = new Map<String, dynamic>();    
+    Application.cache = new Map<String, dynamic>();
 
     try {
       availableCameras().then((cameras) {
@@ -119,10 +123,12 @@ class _SplashScreenRoute extends State<SplashScreenRoute> {
           );
         }
 
-        Application.closeDatabase().then((result) {
-          Application.initDatabase().then((data) {
-            Category.getCategories().then((categories) {
-              Application.cache["categories"] = categories;
+        Application.closeDatabase().then((_) {
+          Application.initDatabase().then((_) {
+            Future.wait([
+              Category.getCategories(),
+            ]).then((results) {              
+              Application.cache["categories"] = results[0];
               _startApp();
             });
           });
