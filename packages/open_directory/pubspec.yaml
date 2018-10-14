@@ -1,0 +1,16 @@
+name: open_directory
+description: Open Directory plugin
+version: 0.3.0
+author: Ahmadreza Zibaei <ahmadreza@zibaei.net>
+
+flutter:
+  plugin:
+    androidPackage: net.zibaei.open_directory
+    pluginClass: OpenDirectoryPlugin
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+environment:
+    sdk: ">=2.0.0 <2.2.0"

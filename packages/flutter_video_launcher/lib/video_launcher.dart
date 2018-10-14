@@ -10,7 +10,7 @@ const _channel = const MethodChannel('bz.rxla.flutter/video_launcher');
 /// The returned future completes with a [PlatformException] on invalid URLs and
 /// schemes which cannot be handled, that is when [canLaunchVideo] would complete
 /// with false.
-Future<Null> launchVideo(String urlString, {bool isLocal:false}) {
+Future<dynamic> launchVideo(String urlString, {bool isLocal:false}) {
   return _channel.invokeMethod(
     /* FIXME had some trouble to send a false BOOL to objC => for now I send 1 || 0 */
     'launchVideo',{"url":urlString, "isLocal":isLocal ? 1 : 0 },

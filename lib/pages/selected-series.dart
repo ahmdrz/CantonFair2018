@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:open_directory/open_directory.dart';
 
+import '../config/application.dart';
 import '../utils/card.dart';
 import '../pages/item-view.dart';
 import '../models/CaptureModel.dart';
@@ -236,17 +238,22 @@ class _SelectedSeriesRoute extends State<SelectedSeriesRoute>
         title: Text(
           _makeTitle(_selectedSeries.title),
         ),
-        // actions: <Widget>[
-        //   FlatButton(
-        //     child: Text(
-        //       "Open as",
-        //       style: TextStyle(
-        //         color: whiteColor,
-        //       ),
-        //     ),
-        //     onPressed: _openIntent,
-        //   )
-        // ],
+        actions: <Widget>[
+          FlatButton(
+            child: Text(
+              "Open as",
+              style: TextStyle(
+                color: whiteColor,
+              ),
+            ),
+            onPressed: () {
+              final String dirPath = '${Application.appDir}/Categories/${_selectedCategory.name}/${_selectedSeries.uuid}';
+              canOpen(dirPath).then((result) {
+                openDirectory(dirPath);
+              });
+            },
+          )
+        ],
       ),
       body: _items.length > 0 ? _tabBarView() : _listView(),
       bottomNavigationBar: _items.length > 0 ? _bottomBar() : null,

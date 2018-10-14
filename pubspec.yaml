@@ -33,8 +33,12 @@ dependencies:
   audioplayers: 0.7.8
   archive: 2.0.4
   image_picker: 0.4.10  
+
   video_launcher: 
     path: './packages/flutter_video_launcher'
+
+  open_directory:
+    path: './packages/open_directory'
 
 dev_dependencies:
   flutter_test:

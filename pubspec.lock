@@ -284,6 +284,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "1.4.4"
+  open_directory:
+    dependency: "direct main"
+    description:
+      path: "packages/open_directory"
+      relative: true
+    source: path
+    version: "0.3.0"
   package_config:
     dependency: transitive
     description:

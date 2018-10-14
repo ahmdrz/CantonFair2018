@@ -48,7 +48,6 @@ class _CaptureRoute extends State<CaptureRoute> {
 
   CameraController controller;
   CaptureModel model;
-  String openTime;
 
   var _state = Options.photo;
   bool _initializing = false;
@@ -57,9 +56,7 @@ class _CaptureRoute extends State<CaptureRoute> {
   bool _loading = false;
 
   final String uuid;
-  _CaptureRoute({this.uuid}) {
-    openTime = timestamp();
-  }
+  _CaptureRoute({this.uuid});
 
   @override
   Widget build(BuildContext context) {
@@ -175,7 +172,7 @@ class _CaptureRoute extends State<CaptureRoute> {
     var image = await ImagePicker.pickImage(source: ImageSource.camera);
     if (image == null) return null;
     final String dirPath =
-        '${Application.appDir}/Categories/${_category.name}/${openTime}_$uuid/Photos';
+        '${Application.appDir}/Categories/${_category.name}/$uuid/Photos';
     await Directory(dirPath).create(recursive: true);
     final String filePath = '$dirPath/${timestamp()}.jpg';
     await image.copy(filePath);
@@ -187,7 +184,7 @@ class _CaptureRoute extends State<CaptureRoute> {
     var video = await ImagePicker.pickVideo(source: ImageSource.camera);
     if (video == null) return null;
     final String dirPath =
-        '${Application.appDir}/Categories/${_category.name}/${openTime}_$uuid/Movies';
+        '${Application.appDir}/Categories/${_category.name}/$uuid/Movies';
     await Directory(dirPath).create(recursive: true);
     final String filePath = '$dirPath/${timestamp()}.mp4';
     await video.copy(filePath);
@@ -251,7 +248,7 @@ class _CaptureRoute extends State<CaptureRoute> {
 
   Future<String> startAudioRecord() async {
     final String dirPath =
-        '${Application.appDir}/Categories/${_category.name}/${openTime}_$uuid/Audios';
+        '${Application.appDir}/Categories/${_category.name}/$uuid/Audios';
     await Directory(dirPath).create(recursive: true);
     final String filePath = '$dirPath/${timestamp()}.aac';
 
@@ -272,7 +269,7 @@ class _CaptureRoute extends State<CaptureRoute> {
     }
 
     final String dirPath =
-        '${Application.appDir}/Categories/${_category.name}/${openTime}_$uuid/Movies';
+        '${Application.appDir}/Categories/${_category.name}/$uuid/Movies';
     await Directory(dirPath).create(recursive: true);
     final String filePath = '$dirPath/${timestamp()}.mp4';
 
@@ -315,7 +312,7 @@ class _CaptureRoute extends State<CaptureRoute> {
       return null;
     }
     final String dirPath =
-        '${Application.appDir}/Categories/${_category.name}/${openTime}_$uuid/Pictures';
+        '${Application.appDir}/Categories/${_category.name}/$uuid/Pictures';
     await Directory(dirPath).create(recursive: true);
     final String filePath = '$dirPath/${timestamp()}.jpg';
 
